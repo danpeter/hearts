@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <title>Apache Tomcat WebSocket Examples: Chat</title>
+    <script type="text/javascript" src="js/card.js"></script>
+    <script type="text/javascript" src="js/canvas.js"></script>
+    <script type="text/javascript" src="js/game.js"></script>
+    <script type="text/javascript" src="js/hand.js"></script>
+    <style type="text/css" media="screen">
+        canvas, img { display:block; margin:1em auto; border:1px solid black; }
+        canvas {
+            background: url(images/background.jpg) no-repeat;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+    </style>
+</head>
+<body onload="Game.initialize()">
+<div class="noscript"><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websockets rely on
+    Javascript being enabled. Please enable
+    Javascript and reload this page!</h2></div>
+<div>
+    <canvas id="myCanvas" width="1024" height="768" style="border:1px solid #000000;">
+    </canvas>
+</div>
+</body>
+</html>

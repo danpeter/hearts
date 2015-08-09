@@ -1,0 +1,197 @@
+"use strict";
+
+var Game = {
+    firstHand: true,
+    players: [],
+    trick: [],
+    currentPlayer: null,
+    player: {},
+    socket: null,
+    canvasState: null,
+    waitForTrickClear: false,
+    heartsBroken: false
+};
+
+Game.connect = (function (host) {
+    if ('WebSocket' in window) {
+        Game.socket = new WebSocket(host);
+    } else if ('MozWebSocket' in window) {
+        Game.socket = new MozWebSocket(host);
+    } else {
+        console.log('Error: WebSocket is not supported by this browser.');
+        return;
+    }
+
+    Game.socket.onopen = function () {
+        console.log('Info: WebSocket connection opened.');
+        console.log('Info: Waiting for 4 players.');
+        var command = {
+            type: 'PLAYER_NAME',
+            name: getParameterByName('playerName')
+        };
+        Game.socket.send(JSON.stringify(command));
+    };
+
+    Game.socket.onclose = function () {
+        console.log('Info: WebSocket closed.');
+    };
+
+    Game.socket.onmessage = function (message) {
+        var command = JSON.parse(message.data);
+        switch (command.type) {
+            case 'NEW_ROUND':
+                console.log('Game is starting! Dealing hands.');
+                Game.firstHand = true;
+                Game.player.id = command.playerId;
+                Game.players = command.players;
+                Game.currentPlayer = command.startingPlayer;
+                Game.drawHand(command);
+                Game.heartsBroken = false;
+                break;
+            case 'PLAYED_CARD':
+                Game.firstHand = false;
+                if (command.card.suit == 'HEARTS') {
+                    Game.heartsBroken = true;
+                }
+                Game.playTrick(command);
+                break;
+            default:
+                console.log('Unknown message');
+        }
+    };
+});
+
+
+Game.initialize = function () {
+    var canvas = document.getElementById("myCanvas");
+    Game.canvasState = new CanvasState(canvas);
+    canvas.addEventListener('mousedown', Game.onMouseClick, true);
+
+    if (window.location.protocol == 'http:') {
+        Game.connect('ws://' + window.location.host + '/websocket/chat', canvas);
+    } else {
+        Game.connect('wss://' + window.location.host + '/websocket/chat', canvas);
+    }
+};
+
+Game.onMouseClick = (function (e) {
+    function isTwoOfClubsIfFirstRound() {
+        return Game.firstHand == false || (card.suit === 'CLUBS' && card.value === "TWO");
+    }
+
+    function isFollowingSuit() {
+        return Game.trick.length === 0
+            || Game.trick[0].hasSameSuite(card)
+            || !Game.players[0].hand.containsSuit(Game.trick[0].suit);
+    }
+
+    function isAllowedToPlayHearts() {
+        var hand = Game.players[0].hand;
+        if (card.suit === 'HEARTS' && !Game.heartsBroken) {
+            return hand.containsOnlyHearts() || !hand.containsSuit(Game.trick[0].suit);
+        }
+        return true;
+    }
+
+    //is it your turn?
+    if (Game.currentPlayer.id === Game.player.id) {
+        var mouse = Game.canvasState.getMouse(e);
+        var mx = mouse.x;
+        var my = mouse.y;
+        var l = Game.players[0].hand.cards.length;
+        for (var i = l - 1; i >= 0; i--) {
+            var card = Game.players[0].hand.cards[i];
+            if (card.contains(mx, my)) {
+                if (isTwoOfClubsIfFirstRound() && isFollowingSuit() && isAllowedToPlayHearts() && !Game.waitForTrickClear) {
+                    var command = {
+                        type: 'PLAY_CARD',
+                        card: Game.players[0].hand.cards[i],
+                        player: Game.player.id
+                    };
+                    Game.socket.send(JSON.stringify(command));
+                }
+                //Should only be able to select the topmost card when they are on top of each other
+                break;
+            }
+
+        }
+    }
+})
+;
+
+Game.sendMessage = (function () {
+    var message = document.getElementById('chat').value;
+    if (message != '') {
+        Game.socket.send(message);
+        document.getElementById('chat').value = '';
+    }
+});
+
+Game.drawHand = (function (command) {
+    Game.players[0].hand = new Hand(command.hand);
+    Game.canvasState.draw();
+});
+
+Game.playTrick = (function (command) {
+    var playedCard;
+    if (command.playerWhoPlayed.id === Game.player.id) {
+        //remove card from own hand
+        Game.players[0].hand.remove(command.card);
+    }
+    //someone else played the card
+    Game.players.forEach(function (player, index) {
+        if (player.id === command.playerWhoPlayed.id) {
+            var x;
+            var y;
+            switch (index) {
+                case 0: // South (you)
+                    x = 370;
+                    y = 350;
+                    break;
+                case 1: // West
+                    x = 330;
+                    y = 300;
+                    break;
+                case 2: // North
+                    x = 390;
+                    y = 270;
+                    break;
+                case 3: // East
+                    x = 430;
+                    y = 320;
+                    break;
+            }
+            playedCard = new Card(command.card.value, command.card.suit, command.points, x, y);
+        }
+    });
+    Game.currentPlayer = command.currentPlayer;
+    Game.trick.push(playedCard);
+    Game.canvasState.draw();
+    if (Game.trick.length == 4) {
+        Game.trick = [];
+        Game.waitForTrickClear = true;
+        //After 3 seconds clear the trick and set the looser as the current player
+        window.setTimeout(function () {
+            //Had problem with race condition between the timer and new played cards
+            Game.canvasState.draw();
+            Game.waitForTrickClear = false;
+        }, 3000);
+    }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Remove elements with "noscript" class - <noscript> is not allowed in XHTML
+    var noscripts = document.getElementsByClassName("noscript");
+    for (var i = 0; i < noscripts.length; i++) {
+        noscripts[i].parentNode.removeChild(noscripts[i]);
+    }
+}, false);
+
+
+//Read query parameter
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
