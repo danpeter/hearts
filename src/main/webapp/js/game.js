@@ -9,7 +9,8 @@ var Game = {
     socket: null,
     canvasState: null,
     waitForTrickClear: false,
-    heartsBroken: false
+    heartsBroken: false,
+    receivedTrade: []
 };
 
 Game.connect = (function (host) {
@@ -45,8 +46,10 @@ Game.connect = (function (host) {
                 Game.player.id = command.playerId;
                 Game.players = command.players;
                 Game.currentPlayer = command.startingPlayer;
+                Game.receivedTrade = [];
                 Game.drawHand(command);
                 Game.heartsBroken = false;
+                Game.canvasState.canvas.addEventListener('mousedown', Game.onMouseClickPlaying, true);
                 break;
             case 'PLAYED_CARD':
                 Game.firstHand = false;
@@ -54,6 +57,18 @@ Game.connect = (function (host) {
                     Game.heartsBroken = true;
                 }
                 Game.playTrick(command);
+                break;
+            case 'TRADING':
+                Game.players = command.players;
+                Game.drawHand(command);
+                Game.tradingCards = [];
+                Game.canvasState.canvas.addEventListener('mousedown', Game.onMouseClickTrading, true);
+                Game.canvasState.printMessage("Trade three cards  " + command.direction.toLowerCase());
+                break;
+            case 'RECEIVED_TRADE':
+                Game.receiveTrade(command);
+                Game.canvasState.draw();
+                //Game.canvasState.printMessage("Trade three cards  " + command.direction.toLowerCase());
                 break;
             default:
                 console.log('Unknown message');
@@ -64,17 +79,18 @@ Game.connect = (function (host) {
 
 Game.initialize = function () {
     var canvas = document.getElementById("myCanvas");
-    Game.canvasState = new CanvasState(canvas);
-    canvas.addEventListener('mousedown', Game.onMouseClick, true);
+    Game.canvasState = new CanvasState(canvas, function () {
+        if (window.location.protocol == 'http:') {
+            Game.connect('ws://' + window.location.host + '/websocket/chat', canvas);
+        } else {
+            Game.connect('wss://' + window.location.host + '/websocket/chat', canvas);
+        }
+    });
 
-    if (window.location.protocol == 'http:') {
-        Game.connect('ws://' + window.location.host + '/websocket/chat', canvas);
-    } else {
-        Game.connect('wss://' + window.location.host + '/websocket/chat', canvas);
-    }
+
 };
 
-Game.onMouseClick = (function (e) {
+Game.onMouseClickPlaying = (function (e) {
     function isTwoOfClubsIfFirstRound() {
         return Game.firstHand == false || (card.suit === 'CLUBS' && card.value === "TWO");
     }
@@ -116,8 +132,33 @@ Game.onMouseClick = (function (e) {
 
         }
     }
-})
-;
+});
+
+Game.onMouseClickTrading = (function (e) {
+    if (Game.tradingCards.length === 3) return;
+
+    var mouse = Game.canvasState.getMouse(e);
+    var mx = mouse.x;
+    var my = mouse.y;
+    var l = Game.players[0].hand.cards.length;
+    for (var i = l - 1; i >= 0; i--) {
+        var card = Game.players[0].hand.cards[i];
+        if (card.contains(mx, my)) {
+            Game.tradingCards.push(card);
+            Game.players[0].hand.remove(card);
+            Game.canvasState.draw();
+            if (Game.tradingCards.length === 3) {
+                var command = {
+                    type: 'TRADE_CARDS',
+                    cards: Game.tradingCards
+                };
+                Game.socket.send(JSON.stringify(command));
+            }
+            //Should only be able to select the topmost card when they are on top of each other
+            break;
+        }
+    }
+});
 
 Game.sendMessage = (function () {
     var message = document.getElementById('chat').value;
@@ -130,6 +171,12 @@ Game.sendMessage = (function () {
 Game.drawHand = (function (command) {
     Game.players[0].hand = new Hand(command.hand);
     Game.canvasState.draw();
+});
+
+Game.receiveTrade = (function (command) {
+    this.receivedTrade = command.cards.map(function (card, index) {
+        return new Card(card.value, card.suit, card.points, 300 + index * 25, 380);
+    });
 });
 
 Game.playTrick = (function (command) {
@@ -175,7 +222,7 @@ Game.playTrick = (function (command) {
             //Had problem with race condition between the timer and new played cards
             Game.canvasState.draw();
             Game.waitForTrickClear = false;
-        }, 3000);
+        }, 2000);
     }
 });
 

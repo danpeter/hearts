@@ -1,21 +1,19 @@
 package com.danpeter.hearts;
 
-import java.io.IOException;
-import java.util.Optional;
-
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
-
 import com.danpeter.hearts.deck.Card;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+
+import javax.websocket.*;
+import javax.websocket.server.ServerEndpoint;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @ServerEndpoint(value = "/websocket/chat")
 public class HeartsEndpoint {
@@ -42,13 +40,17 @@ public class HeartsEndpoint {
         JsonParser parser = new JsonParser();
         JsonObject obj = parser.parse(message).getAsJsonObject();
         String type = obj.get("type").getAsString();
-        switch(type) {
-            case "PLAY_CARD" :
+        switch (type) {
+            case "PLAY_CARD":
                 Card card = gson.fromJson(obj.get("card").getAsJsonObject(), Card.class);
                 player.get().playCard(card);
                 break;
-            case "PLAYER_NAME" :
+            case "PLAYER_NAME":
                 gameManager.joinGame(this, obj.get("name").getAsString());
+                break;
+            case "TRADE_CARDS":
+                List<Card> tradedCards = gson.fromJson(obj.get("cards"), new TypeToken<ArrayList<Card>>() { }.getType());
+                player.get().tradingCards(tradedCards);
         }
     }
 

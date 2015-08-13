@@ -12,12 +12,10 @@ public class Hand {
     public static final int TRICKS_IN_A_HAND = 13;
     private int tricks = 1;
     private final LinkedList<Player> players;
-    private final int round;
     private boolean heartsBroken = false;
 
-    public Hand(LinkedList<Player> players, int round) {
+    public Hand(LinkedList<Player> players) {
         this.players = players;
-        this.round = round;
 
         deck.shuffle();
         //deal cards
@@ -29,16 +27,18 @@ public class Hand {
             }
             player.setHand(hand);
         });
+    }
 
+    public void startTrading(Game.TradeCards tradeCards) {
+            players.stream().forEach(player -> player.tradingStarted(players, tradeCards));
+    }
+
+    public void startHand() {
         this.currentPlayer = players.stream().filter(p -> p.getHand().contains(Card.TWO_OF_CLUBS))
                 .findAny()
                 .orElseThrow(() -> new IllegalStateException("No player has two of clubs"));
-    }
 
-
-    public void startHand() {
         players.stream().forEach(player -> player.newHandIsStarting(players,
-                round,
                 currentPlayer));
     }
 
@@ -48,6 +48,10 @@ public class Hand {
      * @return boolean representing if the whole hand is finished
      */
     public boolean playsCard(Card card, Player playerWhoPlayed) {
+        if(currentPlayer == null) {
+            throw new IllegalStateException("Current player not set!");
+        }
+
         if (!currentPlayer.equals(playerWhoPlayed)) {
             throw new IllegalStateException("The player is not allowed to play a card at this time");
         }
@@ -86,6 +90,7 @@ public class Hand {
 
         return false;
     }
+
 
     private boolean isHeartsAndFirstCardPlayedInTrick(Card card) {
         return trick.noCardsPlayed() && card.getSuit() == Card.Suit.HEARTS;

@@ -1,6 +1,6 @@
 'use strict';
 
-function CanvasState(canvas) {
+function CanvasState(canvas, finishedLoading) {
     function loadImages(sources, callback) {
         var images = {};
         var loadedImages = 0;
@@ -28,7 +28,8 @@ function CanvasState(canvas) {
     var canvasState = this;
     loadImages(image_src, function (images) {
         canvasState.images = images;
-        canvasState.draw();
+        //canvasState.draw();
+        finishedLoading();
     });
 
     var stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop;
@@ -77,9 +78,11 @@ CanvasState.prototype.clear = function () {
 CanvasState.prototype.draw = function () {
 
     function printCurrentPlayer() {
-        ctx.font = "30px Arial";
-        ctx.fillStyle = "white";
-        ctx.fillText(Game.currentPlayer.name + '\'s turn.', 350, 30);
+        if (Game.currentPlayer != null) {
+            ctx.font = "30px Arial";
+            ctx.fillStyle = "white";
+            ctx.fillText(Game.currentPlayer.name + '\'s turn.', 350, 30);
+        }
     }
 
     function printScore() {
@@ -100,8 +103,19 @@ CanvasState.prototype.draw = function () {
     Game.trick.forEach(function (card) {
         card.draw(ctx);
     });
+
+    Game.receivedTrade.forEach(function (card) {
+        card.draw(ctx);
+    });
     printCurrentPlayer();
     printScore();
+};
+
+CanvasState.prototype.printMessage = function (message) {
+    var ctx = this.ctx;
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText(message, 350, 30);
 };
 
 
