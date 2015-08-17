@@ -1,6 +1,5 @@
 package com.danpeter.hearts;
 
-import com.danpeter.hearts.deck.Deck;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 
@@ -21,7 +20,7 @@ public class GameManager {
     }
 
     public void joinGame(HeartsEndpoint endpoint, String name) {
-        Player player = new Player(name , endpoint);
+        Player player = new Player(name, endpoint);
         playersWaitingForGame.add(player);
         startAGameIfEnoughPlayers();
     }
