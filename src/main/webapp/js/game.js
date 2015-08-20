@@ -26,6 +26,7 @@ Game.connect = (function (host) {
     Game.socket.onopen = function () {
         console.log('Info: WebSocket connection opened.');
         console.log('Info: Waiting for 4 players.');
+        Game.canvasState.printMessageTop('Waiting for other players.');
         var command = {
             type: 'PLAYER_NAME',
             name: getParameterByName('playerName')
@@ -59,16 +60,19 @@ Game.connect = (function (host) {
                 Game.playTrick(command);
                 break;
             case 'TRADING':
+                Game.currentPlayer = null;
                 Game.players = command.players;
                 Game.drawHand(command);
                 Game.tradingCards = [];
                 Game.canvasState.canvas.addEventListener('mousedown', Game.onMouseClickTrading, true);
-                Game.canvasState.printMessage("Trade three cards  " + command.direction.toLowerCase());
+                Game.canvasState.printMessageTop("Trade three cards  " + command.direction.toLowerCase());
                 break;
             case 'RECEIVED_TRADE':
                 Game.receiveTrade(command);
                 Game.canvasState.draw();
-                //Game.canvasState.printMessage("Trade three cards  " + command.direction.toLowerCase());
+                break;
+            case 'GAME_ERROR':
+                console.log(command.message);
                 break;
             default:
                 console.log('Unknown message');

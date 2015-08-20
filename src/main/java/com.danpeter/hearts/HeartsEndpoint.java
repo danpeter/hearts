@@ -37,20 +37,26 @@ public class HeartsEndpoint {
 
     @OnMessage
     public void incoming(String message) {
-        JsonParser parser = new JsonParser();
-        JsonObject obj = parser.parse(message).getAsJsonObject();
-        String type = obj.get("type").getAsString();
-        switch (type) {
-            case "PLAY_CARD":
-                Card card = gson.fromJson(obj.get("card").getAsJsonObject(), Card.class);
-                player.get().playCard(card);
-                break;
-            case "PLAYER_NAME":
-                gameManager.joinGame(this, obj.get("name").getAsString());
-                break;
-            case "TRADE_CARDS":
-                List<Card> tradedCards = gson.fromJson(obj.get("cards"), new TypeToken<ArrayList<Card>>() { }.getType());
-                player.get().tradingCards(tradedCards);
+        try {
+            JsonParser parser = new JsonParser();
+            JsonObject obj = parser.parse(message).getAsJsonObject();
+            String type = obj.get("type").getAsString();
+            switch (type) {
+                case "PLAY_CARD":
+                    Card card = gson.fromJson(obj.get("card").getAsJsonObject(), Card.class);
+                    player.get().playCard(card);
+                    break;
+                case "PLAYER_NAME":
+                    gameManager.joinGame(this, obj.get("name").getAsString());
+                    break;
+                case "TRADE_CARDS":
+                    List<Card> tradedCards = gson.fromJson(obj.get("cards"), new TypeToken<ArrayList<Card>>() {
+                    }.getType());
+                    player.get().tradingCards(tradedCards);
+            }
+        } catch (IllegalStateException e) {
+            log.error("Rule exception, returning error to the client", e);
+            send(new GameErrorDto(e.getMessage()));
         }
     }
 

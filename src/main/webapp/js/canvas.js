@@ -111,7 +111,7 @@ CanvasState.prototype.draw = function () {
     printScore();
 };
 
-CanvasState.prototype.printMessage = function (message) {
+CanvasState.prototype.printMessageTop = function (message) {
     var ctx = this.ctx;
     ctx.font = "30px Arial";
     ctx.fillStyle = "white";
