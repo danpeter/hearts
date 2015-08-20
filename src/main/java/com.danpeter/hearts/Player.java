@@ -33,8 +33,7 @@ public class Player {
 
         players = putCurrentPlayerFirst(players);
 
-        RoundDto dto = new RoundDto("NEW_ROUND",
-                players.stream().map(PlayerDto::from).collect(Collectors.toList()),
+        RoundDto dto = new RoundDto(players.stream().map(PlayerDto::from).collect(Collectors.toList()),
                 PlayerDto.from(startingPlayer),
                 hand,
                 id);
@@ -42,13 +41,12 @@ public class Player {
     }
 
     public void notifyPlayedCard(Card card, Player playerWhoPlayed, Player currentPlayer) {
-        endpoint.send(new PlayedCardDto("PLAYED_CARD", card, PlayerDto.from(playerWhoPlayed), PlayerDto.from(currentPlayer)));
+        endpoint.send(new PlayedCardDto(card, PlayerDto.from(playerWhoPlayed), PlayerDto.from(currentPlayer)));
     }
 
     public void tradingStarted(LinkedList<Player> players, Game.TradeCards tradeCards) {
         needsToTrade = true;
-        TradingDto dto = new TradingDto("TRADING",
-                tradeCards.toString(),
+        TradingDto dto = new TradingDto(tradeCards.toString(),
                 players.stream().map(PlayerDto::from).collect(Collectors.toList()),
                 hand);
         endpoint.send(dto);
@@ -74,7 +72,7 @@ public class Player {
 
     public void receivingCards(List<Card> cards, Player fromPlayer) {
         hand.addAll(cards);
-        endpoint.send(new ReceivedTradeDto("RECEIVED_TRADE", cards, fromPlayer.getName()));
+        endpoint.send(new ReceivedTradeDto(cards, fromPlayer.getName()));
     }
 
     /**
