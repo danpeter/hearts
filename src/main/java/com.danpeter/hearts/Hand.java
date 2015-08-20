@@ -3,7 +3,9 @@ package com.danpeter.hearts;
 import com.danpeter.hearts.deck.Card;
 import com.danpeter.hearts.deck.Deck;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class Hand {
     private final Deck deck = new Deck();
@@ -20,12 +22,12 @@ public class Hand {
         deck.shuffle();
         //deal cards
         players.stream().forEach(player -> {
-            PlayerHand hand = new PlayerHand();
+            List<Card> cards = new ArrayList<>();
             //TODO: Deal in round robin order ...
             for (int i = 1; i <= 13; i++) {
-                hand.add(deck.dealCard());
+                cards.add(deck.dealCard());
             }
-            player.setHand(hand);
+            player.setHand(new PlayerHand(cards));
         });
     }
 
