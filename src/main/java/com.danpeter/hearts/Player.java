@@ -55,18 +55,18 @@ public class Player {
     public void playCard(Card card) {
         hand.validateHasCard(card);
         hand.remove(card);
-        currentGame.orElseThrow(() -> new IllegalStateException("Player is not participating in a game!"))
+        currentGame.orElseThrow(() -> new GameRuleException("Player is not participating in a game!"))
                 .playsCard(card, this);
     }
 
     public void tradingCards(List<Card> cards) {
         if(!needsToTrade) {
-            throw new IllegalStateException("Trading not allowed at this time.");
+            throw new GameRuleException("Trading not allowed at this time.");
         }
         cards.stream().forEach(hand::validateHasCard);
         hand.removeAll(cards);
         needsToTrade = false;
-        currentGame.orElseThrow(() -> new IllegalStateException("Player is not participating in a game!"))
+        currentGame.orElseThrow(() -> new GameRuleException("Player is not participating in a game!"))
                 .tradesCard(this, cards);
     }
 

@@ -1,7 +1,9 @@
 package com.danpeter.hearts.deck;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 
 public class Deck {
 
@@ -20,9 +22,13 @@ public class Deck {
         Collections.shuffle(deck);
     }
 
-    public Card dealCard() {
-        if (deck.isEmpty())
-            throw new IllegalStateException("No cards are left in the deck.");
-        return deck.pop();
+    public List<Card> dealCards(int count) {
+        if (deck.size() < count) {
+            throw new IllegalStateException("Not enough cards in the deck");
+        }
+        List<Card> temp = deck.subList(0, count);
+        List<Card> dealtCards = new ArrayList<>(temp);
+        temp.clear();
+        return dealtCards;
     }
 }

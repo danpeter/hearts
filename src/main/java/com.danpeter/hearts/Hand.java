@@ -3,15 +3,13 @@ package com.danpeter.hearts;
 import com.danpeter.hearts.deck.Card;
 import com.danpeter.hearts.deck.Deck;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 public class Hand {
     private final Deck deck = new Deck();
     private Trick trick = new Trick();
     private Player currentPlayer;
-    public static final int TRICKS_IN_A_HAND = 13;
+    public static final int CARDS_IN_HAND = 13;
     private int tricks = 1;
     private final LinkedList<Player> players;
     private boolean heartsBroken = false;
@@ -22,17 +20,13 @@ public class Hand {
         deck.shuffle();
         //deal cards
         players.stream().forEach(player -> {
-            List<Card> cards = new ArrayList<>();
-            //TODO: Deal in round robin order ...
-            for (int i = 1; i <= 13; i++) {
-                cards.add(deck.dealCard());
-            }
-            player.setHand(new PlayerHand(cards));
+//            //TODO: Deal in round robin order ...
+            player.setHand(new PlayerHand(deck.dealCards(CARDS_IN_HAND)));
         });
     }
 
     public void startTrading(Game.TradeCards tradeCards) {
-            players.stream().forEach(player -> player.tradingStarted(players, tradeCards));
+        players.stream().forEach(player -> player.tradingStarted(players, tradeCards));
     }
 
     public void startHand() {
@@ -50,25 +44,25 @@ public class Hand {
      * @return boolean representing if the whole hand is finished
      */
     public boolean playsCard(Card card, Player playerWhoPlayed) {
-        if(currentPlayer == null) {
+        if (currentPlayer == null) {
             throw new IllegalStateException("Current player not set!");
         }
 
         if (!currentPlayer.equals(playerWhoPlayed)) {
-            throw new IllegalStateException("The player is not allowed to play a card at this time");
+            throw new GameRuleException("The player is not allowed to play a card at this time");
         }
 
-        if(isHeartsAndFirstCardPlayedInTrick(card)) {
-            if(!heartsBroken && !currentPlayer.getHand().onlyHeartsLeft()) {
-                throw new IllegalStateException("Cannot play hearts at this time.");
+        if (isHeartsAndFirstCardPlayedInTrick(card)) {
+            if (!heartsBroken && !currentPlayer.getHand().onlyHeartsLeft()) {
+                throw new GameRuleException("Cannot play hearts at this time.");
             }
         }
 
         if (!isFollowingSuitOrDiscarding(playerWhoPlayed, card)) {
-            throw new IllegalStateException("Player is not following suite!");
+            throw new GameRuleException("Player is not following suite!");
         }
 
-        if(card.getSuit() == Card.Suit.HEARTS) {
+        if (card.getSuit() == Card.Suit.HEARTS) {
             heartsBroken = true;
         }
 
@@ -99,7 +93,7 @@ public class Hand {
     }
 
     private boolean lastTrickInHand() {
-        return tricks == TRICKS_IN_A_HAND;
+        return tricks == CARDS_IN_HAND;
     }
 
     private boolean isFollowingSuitOrDiscarding(Player player, Card card) {

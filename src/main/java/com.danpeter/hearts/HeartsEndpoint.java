@@ -54,7 +54,7 @@ public class HeartsEndpoint {
                     }.getType());
                     player.get().tradingCards(tradedCards);
             }
-        } catch (IllegalStateException e) {
+        } catch (GameRuleException e) {
             log.error("Rule exception, returning error to the client", e);
             send(new GameErrorDto(e.getMessage()));
         }
