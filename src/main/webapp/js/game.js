@@ -71,6 +71,12 @@ Game.connect = (function (host) {
                 Game.receiveTrade(command);
                 Game.canvasState.draw();
                 break;
+            case 'GAME_OVER':
+                Game.currentPlayer = null;
+                Game.players = command.players;
+                Game.canvasState.draw();
+                Game.canvasState.printMessageTop("Game over! The winner is: " + command.winner.name);
+                break;
             case 'GAME_ERROR':
                 console.log(command.message);
                 break;
