@@ -70,6 +70,12 @@ public class Player {
                 .tradesCard(this, cards);
     }
 
+    public void gameOver(Player winner, List<Player> players) {
+        GameOverDto dto = new GameOverDto(PlayerDto.from(winner),
+                players.stream().map(PlayerDto::from).collect(Collectors.toList()));
+        endpoint.send(dto);
+    }
+
     public void receivingCards(List<Card> cards, Player fromPlayer) {
         hand.addAll(cards);
         endpoint.send(new ReceivedTradeDto(cards, fromPlayer.getName()));

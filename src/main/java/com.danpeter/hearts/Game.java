@@ -4,6 +4,7 @@ import com.danpeter.hearts.deck.Card;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BinaryOperator;
 
 
 public class Game {
@@ -11,6 +12,7 @@ public class Game {
     private final LinkedList<Player> players;
     private Hand hand;
     private TradeCards tradeCards = TradeCards.LEFT;
+    public static final int MAX_SCORE = 100;
 
     public Game(LinkedList<Player> players) {
         this.players = players;
@@ -25,10 +27,21 @@ public class Game {
         boolean handIsFinished = hand.playsCard(card, playerWhoPlayed);
 
         if (handIsFinished) {
-            //TODO: Check if any player has > 100 score, then end the game
-            startNewHand();
+            if (gameIsOver()) {
+                Player winner = players.stream().reduce(lowestScoringPlayer).get();
+                players.stream().forEach(player -> player.gameOver(winner, players));
+            } else {
+                startNewHand();
+            }
         }
     }
+
+    private boolean gameIsOver() {
+        return players.stream().filter(player -> player.getScore() >= MAX_SCORE)
+                .findAny().isPresent();
+    }
+
+    private final BinaryOperator<Player> lowestScoringPlayer = (lowestScorer, player) -> lowestScorer.getScore() < player.getScore() ? lowestScorer : player;
 
     private void startNewHand() {
         tradeCards = tradeCards.next();
