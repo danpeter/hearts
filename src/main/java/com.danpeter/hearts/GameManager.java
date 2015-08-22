@@ -9,13 +9,13 @@ public class GameManager {
 
     private static final Log log = LogFactory.getLog(HeartsEndpoint.class);
 
-    private static final GameManager GLOBAL_GAME_MANAGER = new GameManager();
+    private static final GameManager gameManagerSingleton = new GameManager();
     public static final int NUMBER_OF_PLAYERS_IN_HEARTS = 4;
 
     private final LinkedList<Player> playersWaitingForGame = new LinkedList<>();
 
     public static GameManager get() {
-        return GLOBAL_GAME_MANAGER;
+        return gameManagerSingleton;
     }
 
     public synchronized void joinGame(HeartsEndpoint endpoint, String name) {
