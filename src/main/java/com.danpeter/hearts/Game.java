@@ -61,13 +61,13 @@ public class Game {
         int direction;
         switch (tradeCards) {
             case LEFT:
-                direction = 1;
+                direction = 3;
                 break;
             case RIGHT:
-                direction = 2;
+                direction = 1;
                 break;
             case ACROSS:
-                direction = 3;
+                direction = 2;
                 break;
             default:
                 throw new IllegalStateException("Trading with illegal state");
