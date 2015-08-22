@@ -5,7 +5,6 @@ import org.apache.juli.logging.LogFactory;
 
 import java.util.LinkedList;
 
-//TODO: This class needs synchronization
 public class GameManager {
 
     private static final Log log = LogFactory.getLog(HeartsEndpoint.class);
@@ -19,7 +18,7 @@ public class GameManager {
         return GLOBAL_GAME_MANAGER;
     }
 
-    public void joinGame(HeartsEndpoint endpoint, String name) {
+    public synchronized void joinGame(HeartsEndpoint endpoint, String name) {
         Player player = new Player(name, endpoint);
         playersWaitingForGame.add(player);
         startAGameIfEnoughPlayers();
@@ -41,7 +40,7 @@ public class GameManager {
         }
     }
 
-    public void leaveQueue(Player player) {
+    public synchronized void leaveQueue(Player player) {
         playersWaitingForGame.remove(player);
         log.info("There are now " + playersWaitingForGame.size() + " players in the queue.");
     }
