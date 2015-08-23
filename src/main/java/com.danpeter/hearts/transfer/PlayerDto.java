@@ -6,9 +6,9 @@ import java.util.UUID;
 
 public class PlayerDto {
 
-    private final String name;
-    private final UUID id;
-    private final int score;
+    public final String name;
+    public final UUID id;
+    public final int score;
 
     public PlayerDto(String name, UUID id, int score) {
         this.name = name;

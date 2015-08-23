@@ -5,9 +5,9 @@ import com.danpeter.hearts.deck.Card;
 import java.util.List;
 
 public class ReceivedTradeDto {
-    private final String type = "RECEIVED_TRADE";
-    private final List<Card> cards;
-    private final String name;
+    public final String type = "RECEIVED_TRADE";
+    public final List<Card> cards;
+    public final String name;
 
     public ReceivedTradeDto(List<Card> cards, String name) {
         this.cards = cards;

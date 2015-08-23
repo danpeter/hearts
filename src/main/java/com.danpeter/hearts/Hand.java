@@ -4,6 +4,7 @@ import com.danpeter.hearts.deck.Card;
 import com.danpeter.hearts.deck.Deck;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 public class Hand {
@@ -11,14 +12,17 @@ public class Hand {
     public static final int MAX_SCORE_PER_HAND = 26;
     public static final int CARDS_IN_HAND = 13;
 
+    private final Game game;
     private final LinkedList<Player> players;
     private Player currentPlayer;
     private final Deck deck = new Deck();
     private Trick trick = new Trick();
     private int tricks = 1;
     private boolean heartsBroken = false;
+    private TradeCards tradeCards;
 
-    public Hand(LinkedList<Player> players) {
+    public Hand(Game game, LinkedList<Player> players) {
+        this.game = game;
         this.players = players;
 
         deck.shuffle();
@@ -29,8 +33,9 @@ public class Hand {
         });
     }
 
-    public void startTrading(Game.TradeCards tradeCards) {
-        players.stream().forEach(player -> player.tradingStarted(players, tradeCards));
+    public void startTrading(TradeCards tradeCards) {
+        this.tradeCards = tradeCards;
+        players.stream().forEach(player -> player.startTrading(this, players, tradeCards));
     }
 
     public void startHand() {
@@ -38,8 +43,18 @@ public class Hand {
                 .findAny()
                 .orElseThrow(() -> new IllegalStateException("No player has two of clubs"));
 
-        players.stream().forEach(player -> player.newHandIsStarting(players,
+        players.stream().forEach(player -> player.playHand(this,
+                players,
                 currentPlayer));
+    }
+
+    public void tradesCard(Player fromPlayer, List<Card> cards) {
+        tradeCards.getTradingToPlayer(fromPlayer, players).receiveCards(cards, fromPlayer);
+
+        boolean tradingFinished = !players.stream().filter(Player::needsToTrade).findAny().isPresent();
+        if (tradingFinished) {
+            startHand();
+        }
     }
 
     /**
@@ -47,7 +62,7 @@ public class Hand {
      * @param playerWhoPlayed
      * @return boolean representing if the whole hand is finished
      */
-    public boolean playsCard(Card card, Player playerWhoPlayed) {
+    public void playsCard(Card card, Player playerWhoPlayed) {
         if (currentPlayer == null) {
             throw new IllegalStateException("Current player not set!");
         }
@@ -76,7 +91,8 @@ public class Hand {
             if (lastTrickInHand()) {
                 handleScoring();
                 players.stream().forEach(player -> player.notifyPlayedCard(card, playerWhoPlayed, currentPlayer));
-                return true;
+                game.handIsFinished();
+                return;
             } else {
                 trick = new Trick();
                 tricks++;
@@ -85,8 +101,6 @@ public class Hand {
             currentPlayer = players.get((players.indexOf(playerWhoPlayed) + 1) % 4);
         }
         players.stream().forEach(player -> player.notifyPlayedCard(card, playerWhoPlayed, currentPlayer));
-
-        return false;
     }
 
     private void handleScoring() {

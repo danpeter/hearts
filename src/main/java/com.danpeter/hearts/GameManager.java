@@ -32,7 +32,6 @@ public class GameManager {
             firstFourPlayers.add(playersWaitingForGame.pop());
             firstFourPlayers.add(playersWaitingForGame.pop());
             Game game = new Game(firstFourPlayers);
-            firstFourPlayers.stream().forEach(p -> p.participateInGame(game));
             log.info("Starting a game!");
             game.play();
         } else {

@@ -18,7 +18,7 @@ public class Card {
     public enum Value {
         TWO(2), THREE(3), FOUR(4), FIVE(5), SIX(6), SEVEN(7), EIGHT(8), NINE(9), TEN(10), JACK(11), QUEEN(12), KING(13), ACE(14);
 
-        private int points;
+        private final int points;
 
         Value(int points) {
             this.points = points;
@@ -68,8 +68,9 @@ public class Card {
 
         Card card = (Card) o;
 
+        if (points != card.points) return false;
         if (suit != card.suit) return false;
-        return !(value != null ? !value.equals(card.value) : card.value != null);
+        return value == card.value;
 
     }
 
@@ -77,6 +78,7 @@ public class Card {
     public int hashCode() {
         int result = suit != null ? suit.hashCode() : 0;
         result = 31 * result + (value != null ? value.hashCode() : 0);
+        result = 31 * result + points;
         return result;
     }
 }

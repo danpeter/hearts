@@ -4,6 +4,7 @@ package com.danpeter.hearts;
 import com.danpeter.hearts.deck.Card;
 import com.danpeter.hearts.transfer.*;
 
+import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -15,9 +16,9 @@ public class Player {
     private final UUID id;
     private final String name;
     private final HeartsEndpoint endpoint;
-    private PlayerHand hand;
+    private PlayerHand playerHand;
     private List<Card> lostTricks;
-    private Optional<Game> currentGame = Optional.empty();
+    private Optional<Hand> currentHand = Optional.empty();
     private int score = 0;
     private boolean needsToTrade = false;
 
@@ -28,14 +29,15 @@ public class Player {
         endpoint.setPlayer(this);
     }
 
-    public void newHandIsStarting(LinkedList<Player> players, Player startingPlayer) {
+    public void playHand(Hand hand, LinkedList<Player> players, Player startingPlayer) {
+        currentHand = Optional.of(hand);
         lostTricks = new ArrayList<>();
 
         players = putCurrentPlayerFirst(players);
 
         RoundDto dto = new RoundDto(players.stream().map(PlayerDto::from).collect(Collectors.toList()),
                 PlayerDto.from(startingPlayer),
-                hand,
+                playerHand,
                 id);
         endpoint.send(dto);
     }
@@ -44,18 +46,19 @@ public class Player {
         endpoint.send(new PlayedCardDto(card, PlayerDto.from(playerWhoPlayed), PlayerDto.from(currentPlayer)));
     }
 
-    public void tradingStarted(LinkedList<Player> players, Game.TradeCards tradeCards) {
+    public void startTrading(Hand hand, LinkedList<Player> players, TradeCards tradeCards) {
+        currentHand = Optional.of(hand);
         needsToTrade = true;
         TradingDto dto = new TradingDto(tradeCards.toString(),
                 players.stream().map(PlayerDto::from).collect(Collectors.toList()),
-                hand);
+                playerHand);
         endpoint.send(dto);
     }
 
     public void playCard(Card card) {
-        hand.validateHasCard(card);
-        hand.remove(card);
-        currentGame.orElseThrow(() -> new GameRuleException("Player is not participating in a game!"))
+        playerHand.validateHasCard(card);
+        playerHand.remove(card);
+        currentHand.orElseThrow(() -> new GameRuleException("Player is not participating in a hand!"))
                 .playsCard(card, this);
     }
 
@@ -63,10 +66,10 @@ public class Player {
         if (!needsToTrade) {
             throw new GameRuleException("Trading not allowed at this time.");
         }
-        cards.stream().forEach(hand::validateHasCard);
-        hand.removeAll(cards);
+        cards.stream().forEach(playerHand::validateHasCard);
+        playerHand.removeAll(cards);
         needsToTrade = false;
-        currentGame.orElseThrow(() -> new GameRuleException("Player is not participating in a game!"))
+        currentHand.orElseThrow(() -> new GameRuleException("Player is not participating in a hand!"))
                 .tradesCard(this, cards);
     }
 
@@ -76,8 +79,8 @@ public class Player {
         endpoint.send(dto);
     }
 
-    public void receivingCards(List<Card> cards, Player fromPlayer) {
-        hand.addAll(cards);
+    public void receiveCards(List<Card> cards, Player fromPlayer) {
+        playerHand.addAll(cards);
         endpoint.send(new ReceivedTradeDto(cards, fromPlayer.getName()));
     }
 
@@ -106,7 +109,7 @@ public class Player {
     }
 
     public void setHand(PlayerHand hand) {
-        this.hand = hand;
+        this.playerHand = hand;
     }
 
     public String getName() {
@@ -122,15 +125,11 @@ public class Player {
     }
 
     public PlayerHand getHand() {
-        return hand;
+        return playerHand;
     }
 
     public void lostTrick(List<Card> cards) {
         lostTricks.addAll(cards);
-    }
-
-    public void participateInGame(Game game) {
-        this.currentGame = Optional.of(game);
     }
 
     public boolean needsToTrade() {
