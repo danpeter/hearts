@@ -12,7 +12,7 @@ public class Player {
     public static final int POINTS_FOR_HEARTS = 1;
     public static final int POINTS_FOR_QUEEN_OF_SPADES = 13;
 
-    private UUID id;
+    private final UUID id;
     private final String name;
     private final HeartsEndpoint endpoint;
     private PlayerHand hand;

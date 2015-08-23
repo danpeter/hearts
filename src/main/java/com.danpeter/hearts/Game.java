@@ -4,7 +4,6 @@ import com.danpeter.hearts.deck.Card;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BinaryOperator;
 
 
@@ -29,7 +28,6 @@ public class Game {
         boolean handIsFinished = hand.playsCard(card, playerWhoPlayed);
 
         if (handIsFinished) {
-//            handleScoring();
             if (gameIsOver()) {
                 Player winner = players.stream().reduce(lowestScoringPlayer).get();
                 players.stream().forEach(player -> player.gameOver(winner, players));

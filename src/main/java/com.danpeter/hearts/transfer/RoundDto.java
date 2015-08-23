@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.UUID;
 
 public class RoundDto {
-    private final String type = "NEW_ROUND";
-    private final List<PlayerDto> players;
-    private PlayerDto startingPlayer;
-    private final List<Card> hand;
-    private UUID playerId;
+    public final String type = "NEW_ROUND";
+    public final List<PlayerDto> players;
+    public final PlayerDto startingPlayer;
+    public final List<Card> hand;
+    public final UUID playerId;
 
     public RoundDto(List<PlayerDto> players, PlayerDto startingPlayer, PlayerHand hand, UUID playerId) {
         this.players = players;
