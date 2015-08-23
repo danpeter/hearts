@@ -60,7 +60,7 @@ public class Player {
     }
 
     public void tradingCards(List<Card> cards) {
-        if(!needsToTrade) {
+        if (!needsToTrade) {
             throw new GameRuleException("Trading not allowed at this time.");
         }
         cards.stream().forEach(hand::validateHasCard);
@@ -95,7 +95,11 @@ public class Player {
     }
 
     public void updateScore() {
-        score += lostTricks.stream().filter(Card::isScoringCard)
+        score += currentPointsInLostTrick();
+    }
+
+    public int currentPointsInLostTrick() {
+        return lostTricks.stream().filter(Card::isScoringCard)
                 .map(card -> card.getSuit() == Card.Suit.HEARTS ? POINTS_FOR_HEARTS : POINTS_FOR_QUEEN_OF_SPADES)
                 .reduce((total, points) -> total += points)
                 .orElse(0);
@@ -131,5 +135,9 @@ public class Player {
 
     public boolean needsToTrade() {
         return needsToTrade;
+    }
+
+    public void otherPlayerShotTheMoon() {
+        score += Hand.MAX_SCORE_PER_HAND;
     }
 }

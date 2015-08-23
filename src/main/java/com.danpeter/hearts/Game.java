@@ -4,15 +4,17 @@ import com.danpeter.hearts.deck.Card;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BinaryOperator;
 
 
 public class Game {
 
-    private final LinkedList<Player> players;
-    private Hand hand;
-    private TradeCards tradeCards = TradeCards.LEFT;
     public static final int MAX_SCORE = 100;
+
+    private Hand hand;
+    private final LinkedList<Player> players;
+    private TradeCards tradeCards = TradeCards.LEFT;
 
     public Game(LinkedList<Player> players) {
         this.players = players;
@@ -27,6 +29,7 @@ public class Game {
         boolean handIsFinished = hand.playsCard(card, playerWhoPlayed);
 
         if (handIsFinished) {
+//            handleScoring();
             if (gameIsOver()) {
                 Player winner = players.stream().reduce(lowestScoringPlayer).get();
                 players.stream().forEach(player -> player.gameOver(winner, players));

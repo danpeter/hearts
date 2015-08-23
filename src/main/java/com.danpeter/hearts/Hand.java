@@ -4,14 +4,18 @@ import com.danpeter.hearts.deck.Card;
 import com.danpeter.hearts.deck.Deck;
 
 import java.util.LinkedList;
+import java.util.Optional;
 
 public class Hand {
+
+    public static final int MAX_SCORE_PER_HAND = 26;
+    public static final int CARDS_IN_HAND = 13;
+
+    private final LinkedList<Player> players;
+    private Player currentPlayer;
     private final Deck deck = new Deck();
     private Trick trick = new Trick();
-    private Player currentPlayer;
-    public static final int CARDS_IN_HAND = 13;
     private int tricks = 1;
-    private final LinkedList<Player> players;
     private boolean heartsBroken = false;
 
     public Hand(LinkedList<Player> players) {
@@ -70,10 +74,8 @@ public class Hand {
         if (trick.isFinished()) {
             currentPlayer = trick.resolve();
             if (lastTrickInHand()) {
-                players.stream().forEach(player -> {
-                    player.notifyPlayedCard(card, playerWhoPlayed, currentPlayer);
-                    player.updateScore();
-                });
+                handleScoring();
+                players.stream().forEach(player -> player.notifyPlayedCard(card, playerWhoPlayed, currentPlayer));
                 return true;
             } else {
                 trick = new Trick();
@@ -87,6 +89,17 @@ public class Hand {
         return false;
     }
 
+    private void handleScoring() {
+        Optional<Player> playerShotTheMoon = players.stream().filter(p -> p.currentPointsInLostTrick() == MAX_SCORE_PER_HAND)
+                .findAny();
+        if (playerShotTheMoon.isPresent()) {
+            players.stream().filter(p -> !p.equals(playerShotTheMoon.get()))
+                    .forEach(Player::otherPlayerShotTheMoon);
+        } else {
+            players.stream().forEach(Player::updateScore);
+        }
+
+    }
 
     private boolean isHeartsAndFirstCardPlayedInTrick(Card card) {
         return trick.noCardsPlayed() && card.getSuit() == Card.Suit.HEARTS;
