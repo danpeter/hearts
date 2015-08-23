@@ -74,6 +74,7 @@ Game.connect = (function (host) {
             case 'GAME_OVER':
                 Game.currentPlayer = null;
                 Game.players = command.players;
+                Game.players[0].hand = [];
                 Game.canvasState.draw();
                 Game.canvasState.printMessageTop("Game over! The winner is: " + command.winner.name);
                 break;
@@ -120,7 +121,7 @@ Game.onMouseClickPlaying = (function (e) {
     }
 
     //is it your turn?
-    if (Game.currentPlayer.id === Game.player.id) {
+    if (Game.currentPlayer != null && Game.currentPlayer.id === Game.player.id) {
         var mouse = Game.canvasState.getMouse(e);
         var mx = mouse.x;
         var my = mouse.y;
