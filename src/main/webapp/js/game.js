@@ -186,7 +186,7 @@ Game.drawHand = (function (command) {
 
 Game.receiveTrade = (function (command) {
     this.receivedTrade = command.cards.map(function (card, index) {
-        return new Card(card.value, card.suit, card.points, 300 + index * 25, 380);
+        return new Card(card.value, card.suit, card.points, 300 + index * 25, 360);
     });
 });
 
@@ -204,19 +204,19 @@ Game.playTrick = (function (command) {
             switch (index) {
                 case 0: // South (you)
                     x = 370;
-                    y = 350;
+                    y = 340;
                     break;
                 case 1: // West
                     x = 330;
-                    y = 300;
+                    y = 290;
                     break;
                 case 2: // North
                     x = 390;
-                    y = 270;
+                    y = 260;
                     break;
                 case 3: // East
                     x = 430;
-                    y = 320;
+                    y = 310;
                     break;
             }
             playedCard = new Card(command.card.value, command.card.suit, command.points, x, y);

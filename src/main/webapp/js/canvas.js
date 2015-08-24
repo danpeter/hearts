@@ -32,7 +32,6 @@ function CanvasState(canvas, finishedLoading) {
         finishedLoading();
     });
 
-    var stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop;
     if (document.defaultView && document.defaultView.getComputedStyle) {
         this.stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10) || 0;
         this.stylePaddingTop = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10) || 0;
@@ -79,21 +78,40 @@ CanvasState.prototype.draw = function () {
 
     function printCurrentPlayer() {
         if (Game.currentPlayer != null) {
-            ctx.font = "30px Arial";
-            ctx.fillStyle = "white";
-            ctx.fillText(Game.currentPlayer.name + '\'s turn.', 350, 30);
+            ctx.font = "italic 35px Arial";
+            ctx.fillStyle = "#FF6666";
+            ctx.textAlign = "center";
+            ctx.fillText(Game.currentPlayer.name + '\'s turn.', canvas.width/2, 30);
         }
     }
 
     function printScore() {
         ctx.font = '30px Arial';
         ctx.fillStyle = 'white';
+        ctx.textAlign = "left";
         ctx.fillText('Score', 10, 30);
         Game.players.forEach(function (player, i) {
             ctx.fillText(player.name + ': ' + player.score, 10, 55 + i * 25);
         });
     }
 
+    function printPlayerNames() {
+        ctx.font = 'bold 40px Arial';
+        ctx.textAlign = "center";
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+
+
+        ctx.strokeText(Game.players[0].name, canvas.width/2, 760);
+        ctx.textAlign = "left";
+        ctx.strokeText(Game.players[1].name, 10, canvas.height/2);
+        ctx.textAlign = "center";
+        ctx.strokeText(Game.players[2].name, canvas.width/2, 80);
+        ctx.textAlign = "right";
+        ctx.strokeText(Game.players[3].name, 1014, canvas.height/2);
+    }
+
+    var canvas = this.canvas;
     var ctx = this.ctx;
     this.clear();
 
@@ -109,13 +127,16 @@ CanvasState.prototype.draw = function () {
     });
     printCurrentPlayer();
     printScore();
+    printPlayerNames();
 };
 
 CanvasState.prototype.printMessageTop = function (message) {
+    var canvas = this.canvas;
     var ctx = this.ctx;
-    ctx.font = "30px Arial";
-    ctx.fillStyle = "white";
-    ctx.fillText(message, 350, 30);
+    ctx.font = "italic 35px Arial";
+    ctx.fillStyle = "#FF6666";
+    ctx.textAlign = "center";
+    ctx.fillText(message, canvas.width/2, 30);
 };
 
 

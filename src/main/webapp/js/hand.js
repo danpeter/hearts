@@ -13,7 +13,7 @@ function Hand(cards) {
 
     //Convert JSON to card objects with positions
     this.cards = cards.map(function (card, index) {
-        return new Card(card.value, card.suit, card.points, 300 + index * 25, 580);
+        return new Card(card.value, card.suit, card.points, 300 + index * 25, 545);
     });
 }
 
