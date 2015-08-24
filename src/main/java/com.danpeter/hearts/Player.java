@@ -4,7 +4,6 @@ package com.danpeter.hearts;
 import com.danpeter.hearts.deck.Card;
 import com.danpeter.hearts.transfer.*;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,7 +19,7 @@ public class Player {
     private List<Card> lostTricks;
     private Optional<Hand> currentHand = Optional.empty();
     private int score = 0;
-    private boolean needsToTrade = false;
+    private boolean trading = false;
 
     public Player(String name, HeartsEndpoint endpoint) {
         this.id = UUID.randomUUID();
@@ -46,10 +45,10 @@ public class Player {
         endpoint.send(new PlayedCardDto(card, PlayerDto.from(playerWhoPlayed), PlayerDto.from(currentPlayer)));
     }
 
-    public void startTrading(Hand hand, LinkedList<Player> players, TradeCards tradeCards) {
+    public void startTrading(Hand hand, LinkedList<Player> players, TradeDirection tradeDirection) {
         currentHand = Optional.of(hand);
-        needsToTrade = true;
-        TradingDto dto = new TradingDto(tradeCards.toString(),
+        trading = true;
+        TradingDto dto = new TradingDto(tradeDirection.toString(),
                 players.stream().map(PlayerDto::from).collect(Collectors.toList()),
                 playerHand);
         endpoint.send(dto);
@@ -63,12 +62,12 @@ public class Player {
     }
 
     public void tradingCards(List<Card> cards) {
-        if (!needsToTrade) {
+        if (!trading) {
             throw new GameRuleException("Trading not allowed at this time.");
         }
         cards.stream().forEach(playerHand::validateHasCard);
         playerHand.removeAll(cards);
-        needsToTrade = false;
+        trading = false;
         currentHand.orElseThrow(() -> new GameRuleException("Player is not participating in a hand!"))
                 .tradesCard(this, cards);
     }
@@ -79,9 +78,9 @@ public class Player {
         endpoint.send(dto);
     }
 
-    public void receiveCards(List<Card> cards, Player fromPlayer) {
+    public void receiveCards(List<Card> cards) {
         playerHand.addAll(cards);
-        endpoint.send(new ReceivedTradeDto(cards, fromPlayer.getName()));
+        endpoint.send(new ReceivedTradeDto(cards));
     }
 
     /**
@@ -133,7 +132,7 @@ public class Player {
     }
 
     public boolean needsToTrade() {
-        return needsToTrade;
+        return trading;
     }
 
     public void otherPlayerShotTheMoon() {

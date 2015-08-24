@@ -19,7 +19,7 @@ public class Hand {
     private Trick trick = new Trick();
     private int tricks = 1;
     private boolean heartsBroken = false;
-    private TradeCards tradeCards;
+    private Optional<Trade> trade = Optional.empty();
 
     public Hand(Game game, LinkedList<Player> players) {
         this.game = game;
@@ -33,9 +33,9 @@ public class Hand {
         });
     }
 
-    public void startTrading(TradeCards tradeCards) {
-        this.tradeCards = tradeCards;
-        players.stream().forEach(player -> player.startTrading(this, players, tradeCards));
+    public void startTrading(TradeDirection tradeDirection) {
+        trade = Optional.of(new Trade(tradeDirection, players));
+        players.stream().forEach(player -> player.startTrading(this, players, tradeDirection));
     }
 
     public void startHand() {
@@ -49,10 +49,11 @@ public class Hand {
     }
 
     public void tradesCard(Player fromPlayer, List<Card> cards) {
-        tradeCards.getTradingToPlayer(fromPlayer, players).receiveCards(cards, fromPlayer);
+        Trade trade = this.trade.orElseThrow(() -> new IllegalStateException("Not in trading phase!"));
+        trade.trade(fromPlayer, cards);
 
-        boolean tradingFinished = !players.stream().filter(Player::needsToTrade).findAny().isPresent();
-        if (tradingFinished) {
+        if (trade.isTradingFinished()) {
+            players.stream().forEach(player -> player.receiveCards(trade.getTrade(player)));
             startHand();
         }
     }

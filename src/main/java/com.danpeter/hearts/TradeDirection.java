@@ -2,10 +2,10 @@ package com.danpeter.hearts;
 
 import java.util.List;
 
-public enum TradeCards {
+public enum TradeDirection {
     LEFT, RIGHT, ACROSS, NONE;
 
-    public TradeCards next() {
+    public TradeDirection next() {
         return values()[(this.ordinal() + 1) % 4];
     }
 

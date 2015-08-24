@@ -10,7 +10,7 @@ public class Game {
 
     private Hand hand;
     private final LinkedList<Player> players;
-    private TradeCards tradeCards = TradeCards.LEFT;
+    private TradeDirection tradeDirection = TradeDirection.LEFT;
 
     public Game(LinkedList<Player> players) {
         this.players = players;
@@ -18,7 +18,7 @@ public class Game {
     }
 
     public void play() {
-        hand.startTrading(tradeCards);
+        hand.startTrading(tradeDirection);
     }
 
     public void handIsFinished() {
@@ -38,10 +38,10 @@ public class Game {
     private final BinaryOperator<Player> lowestScoringPlayer = (lowestScorer, player) -> lowestScorer.getScore() < player.getScore() ? lowestScorer : player;
 
     private void startNewHand() {
-        tradeCards = tradeCards.next();
+        tradeDirection = tradeDirection.next();
         hand = new Hand(this, players);
-        if (tradeCards != TradeCards.NONE) {
-            hand.startTrading(tradeCards);
+        if (tradeDirection != TradeDirection.NONE) {
+            hand.startTrading(tradeDirection);
         } else {
             hand.startHand();
         }

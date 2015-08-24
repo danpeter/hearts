@@ -47,7 +47,6 @@ Game.connect = (function (host) {
                 Game.player.id = command.playerId;
                 Game.players = command.players;
                 Game.currentPlayer = command.startingPlayer;
-                Game.receivedTrade = [];
                 Game.drawHand(command);
                 Game.heartsBroken = false;
                 Game.canvasState.canvas.addEventListener('mousedown', Game.onMouseClickPlaying, true);
@@ -180,12 +179,23 @@ Game.sendMessage = (function () {
 });
 
 Game.drawHand = (function (command) {
-    Game.players[0].hand = new Hand(command.hand);
-    Game.canvasState.draw();
+    function drawHandAndUpdateCanvas() {
+        Game.receivedTrade = [];
+        Game.players[0].hand = new Hand(command.hand);
+        Game.canvasState.draw();
+    }
+
+    if (Game.receivedTrade.length != 0) {
+        //A trade just happened, wait a bit to update the canvas
+        window.setTimeout(drawHandAndUpdateCanvas, 2000);
+    } else {
+        drawHandAndUpdateCanvas();
+    }
+
 });
 
 Game.receiveTrade = (function (command) {
-    this.receivedTrade = command.cards.map(function (card, index) {
+    Game.receivedTrade = command.cards.map(function (card, index) {
         return new Card(card.value, card.suit, card.points, 300 + index * 25, 360);
     });
 });
