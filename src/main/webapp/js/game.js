@@ -74,7 +74,7 @@ Game.connect = (function (host) {
             case 'GAME_OVER':
                 Game.currentPlayer = null;
                 Game.players = command.players;
-                Game.players[0].hand = [];
+                Game.players[0].hand = new Hand([]);
                 Game.canvasState.draw();
                 Game.canvasState.printMessageTop("Game over! The winner is: " + command.winner.name);
                 break;
