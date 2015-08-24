@@ -86,10 +86,11 @@ CanvasState.prototype.draw = function () {
     }
 
     function printScore() {
-        ctx.font = '30px Arial';
+        ctx.font = 'bold 30px Arial';
         ctx.fillStyle = 'white';
         ctx.textAlign = "left";
         ctx.fillText('Score', 10, 30);
+        ctx.font = '30px Arial';
         Game.players.forEach(function (player, i) {
             ctx.fillText(player.name + ': ' + player.score, 10, 55 + i * 25);
         });
