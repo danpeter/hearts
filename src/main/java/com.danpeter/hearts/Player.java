@@ -48,6 +48,9 @@ public class Player {
     public void startTrading(Hand hand, LinkedList<Player> players, TradeDirection tradeDirection) {
         currentHand = Optional.of(hand);
         trading = true;
+
+        players = putCurrentPlayerFirst(players);
+
         TradingDto dto = new TradingDto(tradeDirection.toString(),
                 players.stream().map(PlayerDto::from).collect(Collectors.toList()),
                 playerHand);
