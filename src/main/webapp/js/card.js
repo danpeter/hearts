@@ -29,3 +29,7 @@ Card.prototype.contains = function (mx, my) {
 Card.prototype.hasSameSuite = function (otherCard) {
     return this.suit === otherCard.suit;
 };
+
+Card.prototype.isScoringCard = function () {
+    return this.suit === "HEARTS" || (this.suit === "SPADES" && this.value === "QUEEN");
+}

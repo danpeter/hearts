@@ -58,11 +58,6 @@ public class Hand {
         }
     }
 
-    /**
-     * @param card
-     * @param playerWhoPlayed
-     * @return boolean representing if the whole hand is finished
-     */
     public void playsCard(Card card, Player playerWhoPlayed) {
         if (currentPlayer == null) {
             throw new IllegalStateException("Current player not set!");
@@ -70,6 +65,10 @@ public class Hand {
 
         if (!currentPlayer.equals(playerWhoPlayed)) {
             throw new GameRuleException("The player is not allowed to play a card at this time");
+        }
+
+        if(scoringCardInFirstTrick(card)) {
+            throw new GameRuleException("Scoring cards not allowed during the first trick!");
         }
 
         if (isHeartsAndFirstCardPlayedInTrick(card)) {
@@ -118,6 +117,10 @@ public class Hand {
 
     private boolean isHeartsAndFirstCardPlayedInTrick(Card card) {
         return trick.noCardsPlayed() && card.getSuit() == Card.Suit.HEARTS;
+    }
+
+    private boolean scoringCardInFirstTrick(Card card) {
+        return card.isScoringCard() && tricks == 1;
     }
 
     private boolean lastTrickInHand() {

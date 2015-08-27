@@ -52,7 +52,10 @@ Game.connect = (function (host) {
                 Game.canvasState.canvas.addEventListener('mousedown', Game.onMouseClickPlaying, true);
                 break;
             case 'PLAYED_CARD':
-                Game.firstHand = false;
+                if (Game.trick.length === 4) {
+                    //We have completed the first trick
+                    Game.firstHand = false;
+                }
                 if (command.card.suit == 'HEARTS') {
                     Game.heartsBroken = true;
                 }
@@ -101,8 +104,8 @@ Game.initialize = function () {
 };
 
 Game.onMouseClickPlaying = (function (e) {
-    function isTwoOfClubsIfFirstRound() {
-        return Game.firstHand == false || (card.suit === 'CLUBS' && card.value === "TWO");
+    function isTwoOfClubsIfFirstCardInFirstRound() {
+        return Game.firstHand == false || Game.trick.length !== 0 || (card.suit === 'CLUBS' && card.value === "TWO");
     }
 
     function isFollowingSuit() {
@@ -119,6 +122,10 @@ Game.onMouseClickPlaying = (function (e) {
         return true;
     }
 
+    function isFirstTrickAndScoringCard() {
+        return Game.firstHand && card.isScoringCard();
+    }
+
     //is it your turn?
     if (Game.currentPlayer != null && Game.currentPlayer.id === Game.player.id) {
         var mouse = Game.canvasState.getMouse(e);
@@ -128,7 +135,7 @@ Game.onMouseClickPlaying = (function (e) {
         for (var i = l - 1; i >= 0; i--) {
             var card = Game.players[0].hand.cards[i];
             if (card.contains(mx, my)) {
-                if (isTwoOfClubsIfFirstRound() && isFollowingSuit() && isAllowedToPlayHearts() && !Game.waitForTrickClear) {
+                if (isTwoOfClubsIfFirstCardInFirstRound() && isFollowingSuit() && isAllowedToPlayHearts() && !isFirstTrickAndScoringCard() && !Game.waitForTrickClear) {
                     var command = {
                         type: 'PLAY_CARD',
                         card: Game.players[0].hand.cards[i],
