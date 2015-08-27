@@ -52,12 +52,13 @@ Game.connect = (function (host) {
                 Game.canvasState.canvas.addEventListener('mousedown', Game.onMouseClickPlaying, true);
                 break;
             case 'PLAYED_CARD':
-                if (Game.trick.length === 4) {
-                    //We have completed the first trick
-                    Game.firstHand = false;
-                }
+
                 if (command.card.suit == 'HEARTS') {
                     Game.heartsBroken = true;
+                }
+                if (Game.trick.length === 3) {
+                    //We have completed the first trick
+                    Game.firstHand = false;
                 }
                 Game.playTrick(command);
                 break;
