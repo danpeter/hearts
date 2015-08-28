@@ -57,7 +57,7 @@ Game.connect = (function (host) {
                     Game.heartsBroken = false;
                     Game.canvasState.canvas.addEventListener('mousedown', Game.onMouseClickPlaying, true);
                 };
-                otherActionHappening ? window.setTimeout(newRound, 2000) : newRound();
+                otherActionHappening() ? window.setTimeout(newRound, 2000) : newRound();
                 break;
             case 'PLAYED_CARD':
                 if (command.card.suit == 'HEARTS') {
@@ -79,7 +79,7 @@ Game.connect = (function (host) {
                     Game.canvasState.canvas.addEventListener('mousedown', Game.onMouseClickTrading, true);
                     Game.canvasState.printMessageTop("Trade three cards  " + command.direction.toLowerCase());
                 };
-                otherActionHappening ? window.setTimeout(trading, 2000) : trading();
+                otherActionHappening() ? window.setTimeout(trading, 2000) : trading();
                 break;
             case 'RECEIVED_TRADE':
                 Game.receiveTrade(command);
