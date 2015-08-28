@@ -48,7 +48,6 @@ Game.connect = (function (host) {
             case 'NEW_ROUND':
                 var newRound = function () {
                     console.log('Game is starting! Dealing hands.');
-                    document.getElementById("shuffle").play();
                     Game.firstHand = true;
                     Game.player.id = command.playerId;
                     Game.players = command.players;
@@ -71,7 +70,6 @@ Game.connect = (function (host) {
                 break;
             case 'TRADING':
                 var trading = function () {
-                    document.getElementById("shuffle").play();
                     Game.currentPlayer = null;
                     Game.players = command.players;
                     Game.drawHand(command);
@@ -87,6 +85,7 @@ Game.connect = (function (host) {
                 break;
             case 'GAME_OVER':
                 window.setTimeout(function () {
+                    document.getElementById("victory").play();
                     Game.currentPlayer = null;
                     Game.players = command.players;
                     Game.players[0].hand = new Hand([]);
@@ -200,7 +199,7 @@ Game.sendMessage = (function () {
 Game.drawHand = (function (command) {
     Game.receivedTrade = [];
     Game.players[0].hand = new Hand(command.hand);
-    Game.canvasState.draw();
+    Game.canvasState.draw(true);
 });
 
 Game.receiveTrade = (function (command) {

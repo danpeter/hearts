@@ -74,14 +74,14 @@ CanvasState.prototype.clear = function () {
 
 // While draw is called as often as the INTERVAL variable demands,
 // It only ever does something if the canvas gets invalidated by our code
-CanvasState.prototype.draw = function () {
+CanvasState.prototype.draw = function (specialHand) {
 
     function printCurrentPlayer() {
         if (Game.currentPlayer != null) {
             ctx.font = "italic 35px Arial";
             ctx.fillStyle = "#FF6666";
             ctx.textAlign = "center";
-            ctx.fillText(Game.currentPlayer.name + '\'s turn.', canvas.width/2, 30);
+            ctx.fillText(Game.currentPlayer.name + '\'s turn.', canvas.width / 2, 30);
         }
     }
 
@@ -96,6 +96,15 @@ CanvasState.prototype.draw = function () {
         });
     }
 
+    function printHandCardByCardWithSound() {
+        Game.players[0].hand.cards.forEach(function (card, index) {
+            window.setTimeout(function () {
+                document.getElementById("playCard").play();
+                card.draw(ctx);
+            }, index * 300);
+        });
+    }
+
     function printPlayerNames() {
         ctx.font = 'bold 40px Arial';
         ctx.textAlign = "center";
@@ -103,22 +112,26 @@ CanvasState.prototype.draw = function () {
         ctx.lineWidth = 2;
 
 
-        ctx.strokeText(Game.players[0].name, canvas.width/2, 760);
+        ctx.strokeText(Game.players[0].name, canvas.width / 2, 760);
         ctx.textAlign = "left";
-        ctx.strokeText(Game.players[1].name, 10, canvas.height/2);
+        ctx.strokeText(Game.players[1].name, 10, canvas.height / 2);
         ctx.textAlign = "center";
-        ctx.strokeText(Game.players[2].name, canvas.width/2, 80);
+        ctx.strokeText(Game.players[2].name, canvas.width / 2, 80);
         ctx.textAlign = "right";
-        ctx.strokeText(Game.players[3].name, 1014, canvas.height/2);
+        ctx.strokeText(Game.players[3].name, 1014, canvas.height / 2);
     }
 
     var canvas = this.canvas;
     var ctx = this.ctx;
     this.clear();
+    if (specialHand) {
+        printHandCardByCardWithSound();
+    } else {
+        Game.players[0].hand.cards.forEach(function (card) {
+            card.draw(ctx);
+        });
+    }
 
-    Game.players[0].hand.cards.forEach(function (card) {
-        card.draw(ctx);
-    });
     Game.trick.forEach(function (card) {
         card.draw(ctx);
     });
@@ -137,7 +150,7 @@ CanvasState.prototype.printMessageTop = function (message) {
     ctx.font = "italic 35px Arial";
     ctx.fillStyle = "#FF6666";
     ctx.textAlign = "center";
-    ctx.fillText(message, canvas.width/2, 30);
+    ctx.fillText(message, canvas.width / 2, 30);
 };
 
 
