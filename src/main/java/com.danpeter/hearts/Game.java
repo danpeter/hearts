@@ -6,7 +6,7 @@ import java.util.function.BinaryOperator;
 
 public class Game {
 
-    public static final int MAX_SCORE = 100;
+    public static final int MAX_SCORE = 50;
 
     private Hand hand;
     private final LinkedList<Player> players;
