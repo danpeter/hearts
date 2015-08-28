@@ -39,20 +39,26 @@ Game.connect = (function (host) {
     };
 
     Game.socket.onmessage = function (message) {
+        function otherActionHappening() {
+            return Game.receivedTrade.length != 0 || Game.waitForTrickClear;
+        }
+
         var command = JSON.parse(message.data);
         switch (command.type) {
             case 'NEW_ROUND':
-                console.log('Game is starting! Dealing hands.');
-                Game.firstHand = true;
-                Game.player.id = command.playerId;
-                Game.players = command.players;
-                Game.currentPlayer = command.startingPlayer;
-                Game.drawHand(command);
-                Game.heartsBroken = false;
-                Game.canvasState.canvas.addEventListener('mousedown', Game.onMouseClickPlaying, true);
+                var newRound = function () {
+                    console.log('Game is starting! Dealing hands.');
+                    Game.firstHand = true;
+                    Game.player.id = command.playerId;
+                    Game.players = command.players;
+                    Game.currentPlayer = command.startingPlayer;
+                    Game.drawHand(command);
+                    Game.heartsBroken = false;
+                    Game.canvasState.canvas.addEventListener('mousedown', Game.onMouseClickPlaying, true);
+                };
+                otherActionHappening ? window.setTimeout(newRound, 2000) : newRound();
                 break;
             case 'PLAYED_CARD':
-
                 if (command.card.suit == 'HEARTS') {
                     Game.heartsBroken = true;
                 }
@@ -63,23 +69,28 @@ Game.connect = (function (host) {
                 Game.playTrick(command);
                 break;
             case 'TRADING':
-                Game.currentPlayer = null;
-                Game.players = command.players;
-                Game.drawHand(command);
-                Game.tradingCards = [];
-                Game.canvasState.canvas.addEventListener('mousedown', Game.onMouseClickTrading, true);
-                Game.canvasState.printMessageTop("Trade three cards  " + command.direction.toLowerCase());
+                var trading = function () {
+                    Game.currentPlayer = null;
+                    Game.players = command.players;
+                    Game.drawHand(command);
+                    Game.tradingCards = [];
+                    Game.canvasState.canvas.addEventListener('mousedown', Game.onMouseClickTrading, true);
+                    Game.canvasState.printMessageTop("Trade three cards  " + command.direction.toLowerCase());
+                };
+                otherActionHappening ? window.setTimeout(trading, 2000) : trading();
                 break;
             case 'RECEIVED_TRADE':
                 Game.receiveTrade(command);
                 Game.canvasState.draw();
                 break;
             case 'GAME_OVER':
-                Game.currentPlayer = null;
-                Game.players = command.players;
-                Game.players[0].hand = new Hand([]);
-                Game.canvasState.draw();
-                Game.canvasState.printMessageTop("Game over! The winner is: " + command.winner.name);
+                window.setTimeout(function () {
+                    Game.currentPlayer = null;
+                    Game.players = command.players;
+                    Game.players[0].hand = new Hand([]);
+                    Game.canvasState.draw();
+                    Game.canvasState.printMessageTop("Game over! The winner is: " + command.winner.name);
+                }, 2000);
                 break;
             case 'GAME_ERROR':
                 console.log(command.message);
@@ -100,8 +111,6 @@ Game.initialize = function () {
             Game.connect('wss://' + window.location.host + '/websocket/chat', canvas);
         }
     });
-
-
 };
 
 Game.onMouseClickPlaying = (function (e) {
@@ -187,19 +196,9 @@ Game.sendMessage = (function () {
 });
 
 Game.drawHand = (function (command) {
-    function drawHandAndUpdateCanvas() {
-        Game.receivedTrade = [];
-        Game.players[0].hand = new Hand(command.hand);
-        Game.canvasState.draw();
-    }
-
-    if (Game.receivedTrade.length != 0) {
-        //A trade just happened, wait a bit to update the canvas
-        window.setTimeout(drawHandAndUpdateCanvas, 2000);
-    } else {
-        drawHandAndUpdateCanvas();
-    }
-
+    Game.receivedTrade = [];
+    Game.players[0].hand = new Hand(command.hand);
+    Game.canvasState.draw();
 });
 
 Game.receiveTrade = (function (command) {
