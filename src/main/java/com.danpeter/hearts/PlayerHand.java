@@ -26,7 +26,7 @@ public class PlayerHand {
 
     public void validateHasCard(Card card) {
         if (!cards.contains(card)) {
-            throw new IllegalStateException("This player does not have this card!");
+            throw new GameRuleException("Hand does not contain this card!");
         }
     }
 
