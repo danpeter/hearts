@@ -9,14 +9,11 @@ import java.util.stream.Collectors;
 
 public class Player {
 
-    public static final int POINTS_FOR_HEARTS = 1;
-    public static final int POINTS_FOR_QUEEN_OF_SPADES = 13;
-
     private final UUID id;
     private final String name;
     private final HeartsEndpoint endpoint;
     private PlayerHand playerHand;
-    private List<Card> lostTricks;
+    private LostTricks lostTricks;
     private Optional<Hand> currentHand = Optional.empty();
     private int score = 0;
     private boolean trading = false;
@@ -30,7 +27,7 @@ public class Player {
 
     public void playHand(Hand hand, LinkedList<Player> players, Player startingPlayer) {
         currentHand = Optional.of(hand);
-        lostTricks = new ArrayList<>();
+        lostTricks = new LostTricks();
 
         players = putCurrentPlayerFirst(players);
 
@@ -100,14 +97,7 @@ public class Player {
     }
 
     public void updateScore() {
-        score += currentPointsInLostTrick();
-    }
-
-    public int currentPointsInLostTrick() {
-        return lostTricks.stream().filter(Card::isScoringCard)
-                .map(card -> card.getSuit() == Card.Suit.HEARTS ? POINTS_FOR_HEARTS : POINTS_FOR_QUEEN_OF_SPADES)
-                .reduce((total, points) -> total += points)
-                .orElse(0);
+        score += lostTricks.currentPointsInLostTrick();
     }
 
     public void setHand(PlayerHand hand) {
@@ -134,11 +124,11 @@ public class Player {
         lostTricks.addAll(cards);
     }
 
-    public boolean needsToTrade() {
-        return trading;
-    }
-
     public void otherPlayerShotTheMoon() {
         score += Hand.MAX_SCORE_PER_HAND;
+    }
+
+    public boolean hasShotTheMoon() {
+        return lostTricks.currentPointsInLostTrick() == Hand.MAX_SCORE_PER_HAND;
     }
 }

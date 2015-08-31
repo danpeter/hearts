@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Trade {
+    public static final int NUMBER_OF_PLAYERS = 4;
     private final TradeDirection tradeDirection;
     private final LinkedList<Player> players;
     private final Map<Player, List<Card>> trades;
@@ -28,6 +29,6 @@ public class Trade {
     }
 
     public boolean isTradingFinished() {
-        return trades.size() == 4;
+        return trades.size() == NUMBER_OF_PLAYERS;
     }
 }

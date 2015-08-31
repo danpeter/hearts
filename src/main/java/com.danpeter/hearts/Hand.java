@@ -104,7 +104,7 @@ public class Hand {
     }
 
     private void handleScoring() {
-        Optional<Player> playerShotTheMoon = players.stream().filter(p -> p.currentPointsInLostTrick() == MAX_SCORE_PER_HAND)
+        Optional<Player> playerShotTheMoon = players.stream().filter(Player::hasShotTheMoon)
                 .findAny();
         if (playerShotTheMoon.isPresent()) {
             players.stream().filter(p -> !p.equals(playerShotTheMoon.get()))
