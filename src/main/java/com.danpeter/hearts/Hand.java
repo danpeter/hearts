@@ -63,23 +63,10 @@ public class Hand {
             throw new IllegalStateException("Current player not set!");
         }
 
-        if (!currentPlayer.equals(playerWhoPlayed)) {
-            throw new GameRuleException("The player is not allowed to play a card at this time");
-        }
-
-        if(scoringCardInFirstTrick(card)) {
-            throw new GameRuleException("Scoring cards not allowed during the first trick!");
-        }
-
-        if (isHeartsAndFirstCardPlayedInTrick(card)) {
-            if (!heartsBroken && !currentPlayer.getHand().onlyHeartsLeft()) {
-                throw new GameRuleException("Cannot play hearts at this time.");
-            }
-        }
-
-        if (!isFollowingSuitOrDiscarding(playerWhoPlayed, card)) {
-            throw new GameRuleException("Player is not following suite!");
-        }
+        validatePlayerIsTheCurrentPlayer(playerWhoPlayed);
+        validateNotAScoringCardInFirstTrick(card);
+        validateIsFollowingSuit(playerWhoPlayed, card);
+        validateIsAllowedToPlayHearts(card, playerWhoPlayed);
 
         if (card.getSuit() == Card.Suit.HEARTS) {
             heartsBroken = true;
@@ -115,21 +102,35 @@ public class Hand {
 
     }
 
-    private boolean isHeartsAndFirstCardPlayedInTrick(Card card) {
-        return trick.noCardsPlayed() && card.getSuit() == Card.Suit.HEARTS;
+    private void validatePlayerIsTheCurrentPlayer(Player playerWhoPlayed) {
+        if (!currentPlayer.equals(playerWhoPlayed)) {
+            throw new GameRuleException("The player is not allowed to play a card at this time");
+        }
     }
 
-    private boolean scoringCardInFirstTrick(Card card) {
-        return card.isScoringCard() && tricks == 1;
+    private void validateIsAllowedToPlayHearts(Card card, Player player) {
+        if (trick.noCardsPlayed() && card.getSuit() == Card.Suit.HEARTS) {
+            if (!heartsBroken && !player.getHand().onlyHeartsLeft()) {
+                throw new GameRuleException("Cannot play hearts at this time.");
+            }
+        }
+    }
+
+    private void validateIsFollowingSuit(Player playerWhoPlayed, Card card) {
+        if (!trick.noCardsPlayed()
+                && !trick.firstPlayedCard().hasSameSuite(card)
+                && playerWhoPlayed.getHand().handContainsSuite(trick.firstPlayedCard().getSuit())) {
+            throw new GameRuleException("Player is not following suite!");
+        }
+    }
+
+    private void validateNotAScoringCardInFirstTrick(Card card) {
+        if (card.isScoringCard() && tricks == 1) {
+            throw new GameRuleException("Scoring cards not allowed during the first trick!");
+        }
     }
 
     private boolean lastTrickInHand() {
         return tricks == CARDS_IN_HAND;
-    }
-
-    private boolean isFollowingSuitOrDiscarding(Player player, Card card) {
-        return trick.noCardsPlayed()
-                || trick.firstPlayedCard().hasSameSuite(card)
-                || !player.getHand().handContainsSuite(trick.firstPlayedCard().getSuit());
     }
 }
