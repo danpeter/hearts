@@ -48,7 +48,8 @@ public class HeartsEndpoint {
                     break;
                 case "PLAYER_NAME":
                     String name = obj.get("name").getAsString();
-                    gameManager.joinGame(this, name.isEmpty() ? "John Doe" : name.substring(0, 20));
+                    name = name.length() > 20 ? name.substring(0, 20) : name;
+                    gameManager.joinGame(this, name.isEmpty() ? "John Doe" : name);
                     break;
                 case "TRADE_CARDS":
                     List<Card> tradedCards = gson.fromJson(obj.get("cards"), new TypeToken<ArrayList<Card>>() {

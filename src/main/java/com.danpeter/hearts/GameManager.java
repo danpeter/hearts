@@ -35,13 +35,14 @@ public class GameManager {
             log.info("Starting a game!");
             game.play();
         } else {
-            playersWaitingForGame.stream().forEach(player -> player.queueStatus(playersWaitingForGame));
+            playersWaitingForGame.stream().forEach(p -> p.queueStatus(playersWaitingForGame));
             log.info("There are now " + playersWaitingForGame.size() + " players in the queue.");
         }
     }
 
     public synchronized void leaveQueue(Player player) {
         playersWaitingForGame.remove(player);
+        playersWaitingForGame.stream().forEach(p -> p.queueStatus(playersWaitingForGame));
         log.info("There are now " + playersWaitingForGame.size() + " players in the queue.");
     }
 }
