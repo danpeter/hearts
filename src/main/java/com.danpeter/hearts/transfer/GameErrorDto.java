@@ -1,4 +1,4 @@
-package com.danpeter.hearts;
+package com.danpeter.hearts.transfer;
 
 //TODO: Extend with game and player information
 public class GameErrorDto {
