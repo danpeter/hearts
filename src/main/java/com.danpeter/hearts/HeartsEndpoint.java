@@ -47,12 +47,14 @@ public class HeartsEndpoint {
                     player.get().playCard(card);
                     break;
                 case "PLAYER_NAME":
-                    gameManager.joinGame(this, obj.get("name").getAsString());
+                    String name = obj.get("name").getAsString();
+                    gameManager.joinGame(this, name.isEmpty() ? "John Doe" : name.substring(0, 20));
                     break;
                 case "TRADE_CARDS":
                     List<Card> tradedCards = gson.fromJson(obj.get("cards"), new TypeToken<ArrayList<Card>>() {
                     }.getType());
                     player.get().tradingCards(tradedCards);
+                    break;
             }
         } catch (GameRuleException e) {
             log.error("Rule exception, returning error to the client", e);
