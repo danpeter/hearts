@@ -1,4 +1,4 @@
-package com.danpeter.hearts;
+package com.danpeter.hearts.transfer;
 
 import java.util.List;
 
