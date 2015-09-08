@@ -26,7 +26,6 @@ Game.connect = (function (host) {
     Game.socket.onopen = function () {
         console.log('Info: WebSocket connection opened.');
         console.log('Info: Waiting for 4 players.');
-        Game.canvasState.printMessageTop('Waiting for other players.');
         var command = {
             type: 'PLAYER_NAME',
             name: getParameterByName('playerName')
@@ -92,6 +91,9 @@ Game.connect = (function (host) {
                     Game.canvasState.draw();
                     Game.canvasState.printMessageTop("Game over! The winner is: " + command.winner.name);
                 }, 2000);
+                break;
+            case 'QUEUE_STATUS':
+                Game.canvasState.drawQueueStatus(command.playerNames);
                 break;
             case 'GAME_ERROR':
                 console.log(command.message);

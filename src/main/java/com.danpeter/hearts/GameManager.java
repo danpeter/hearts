@@ -35,6 +35,7 @@ public class GameManager {
             log.info("Starting a game!");
             game.play();
         } else {
+            playersWaitingForGame.stream().forEach(player -> player.queueStatus(playersWaitingForGame));
             log.info("There are now " + playersWaitingForGame.size() + " players in the queue.");
         }
     }

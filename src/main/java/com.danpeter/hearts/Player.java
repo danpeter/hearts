@@ -4,7 +4,10 @@ package com.danpeter.hearts;
 import com.danpeter.hearts.deck.Card;
 import com.danpeter.hearts.transfer.*;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class Player {
@@ -130,5 +133,10 @@ public class Player {
 
     public boolean hasShotTheMoon() {
         return lostTricks.currentPointsInLostTrick() == Hand.MAX_SCORE_PER_HAND;
+    }
+
+    public void queueStatus(List<Player> playersWaitingForGame) {
+        QueueDto queueDto = new QueueDto(playersWaitingForGame.stream().map(Player::getName).collect(Collectors.toList()));
+        endpoint.send(queueDto);
     }
 }

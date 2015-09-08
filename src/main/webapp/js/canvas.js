@@ -153,6 +153,17 @@ CanvasState.prototype.printMessageTop = function (message) {
     ctx.fillText(message, canvas.width / 2, 30);
 };
 
+CanvasState.prototype.drawQueueStatus = function (playerNames) {
+    var canvas = this.canvas;
+    var ctx = this.ctx;
+
+    this.clear();
+    Game.canvasState.printMessageTop('Waiting for other players. Currently in queue:');
+    playerNames.forEach(function (name, index) {
+        ctx.fillText('-' + name, canvas.width / 2, 60 + index * 40);
+    });
+};
+
 
 //Image sources
 var image_src = {
