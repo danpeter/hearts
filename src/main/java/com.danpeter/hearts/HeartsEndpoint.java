@@ -33,7 +33,10 @@ public class HeartsEndpoint {
 
     @OnClose
     public void end() {
-        player.ifPresent(gameManager::leaveQueue);
+        player.ifPresent(player -> {
+            gameManager.leaveQueue(player);
+            player.quitGame();
+        });
     }
 
     @OnMessage
@@ -67,7 +70,6 @@ public class HeartsEndpoint {
     @OnError
     public void onError(Throwable t) throws Throwable {
         log.error("Chat Error: " + t.toString(), t);
-        end();
     }
 
     //TODO: Implement some kind of message interface to avoid using object here
@@ -85,6 +87,6 @@ public class HeartsEndpoint {
     }
 
     public void setPlayer(Player player) {
-        this.player = Optional.of(player);
+        this.player = Optional.ofNullable(player);
     }
 }

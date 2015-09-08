@@ -95,6 +95,10 @@ Game.connect = (function (host) {
             case 'QUEUE_STATUS':
                 Game.canvasState.drawQueueStatus(command.playerNames);
                 break;
+            case 'PLAYER_QUIT':
+                Game.canvasState.clear();
+                Game.canvasState.printMessageTop(command.name + ' has quit the game!');
+                break;
             case 'GAME_ERROR':
                 console.log(command.message);
                 break;

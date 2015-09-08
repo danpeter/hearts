@@ -133,4 +133,8 @@ public class Hand {
     private boolean lastTrickInHand() {
         return tricks == CARDS_IN_HAND;
     }
+
+    public void quit(Player player) {
+        players.stream().filter(p -> !p.equals(player)).forEach(p -> p.playerQuit(player));
+    }
 }

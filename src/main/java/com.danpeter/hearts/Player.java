@@ -139,4 +139,18 @@ public class Player {
         QueueDto queueDto = new QueueDto(playersWaitingForGame.stream().map(Player::getName).collect(Collectors.toList()));
         endpoint.send(queueDto);
     }
+
+    public void quitGame() {
+        currentHand.ifPresent(hand -> hand.quit(this));
+    }
+
+    public void playerQuit(Player player) {
+        PlayerQuitDto dto = new PlayerQuitDto(player.getName());
+        endpoint.send(dto);
+        //As the endpoint is the object root, from a garbage collection point of view, setting all player references to null
+        //should remove all Game/Hand objects
+        endpoint.setPlayer(null);
+
+
+    }
 }
