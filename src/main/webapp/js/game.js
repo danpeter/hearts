@@ -25,9 +25,8 @@ Game.connect = (function (host) {
 
     Game.socket.onopen = function () {
         console.log('Info: WebSocket connection opened.');
-        console.log('Info: Waiting for 4 players.');
         var command = {
-            type: 'PLAYER_NAME',
+            type: 'JOIN_GAME',
             name: getParameterByName('playerName')
         };
         Game.socket.send(JSON.stringify(command));
@@ -88,6 +87,9 @@ Game.connect = (function (host) {
                     Game.currentPlayer = null;
                     Game.players = command.players;
                     Game.players[0].hand = new Hand([]);
+                    Game.gameOver = true;
+                    Game.canvasState.canvas.removeEventListener('mousedown', Game.onMouseClickTrading, true);
+                    Game.canvasState.canvas.removeEventListener('mousedown', Game.onMouseClickPlaying, true);
                     Game.canvasState.draw();
                     Game.canvasState.printMessageTop("Game over! The winner is: " + command.winner.name);
                 }, 2000);
@@ -96,7 +98,12 @@ Game.connect = (function (host) {
                 Game.canvasState.drawQueueStatus(command.playerNames);
                 break;
             case 'PLAYER_QUIT':
-                Game.canvasState.clear();
+                Game.currentPlayer = null;
+                Game.players = null;
+                Game.gameOver = true;
+                Game.canvasState.canvas.removeEventListener('mousedown', Game.onMouseClickTrading, true);
+                Game.canvasState.canvas.removeEventListener('mousedown', Game.onMouseClickPlaying, true);
+                Game.canvasState.draw();
                 Game.canvasState.printMessageTop(command.name + ' has quit the game!');
                 break;
             case 'GAME_ERROR':
@@ -191,6 +198,21 @@ Game.onMouseClickTrading = (function (e) {
             //Should only be able to select the topmost card when they are on top of each other
             break;
         }
+    }
+});
+
+Game.onMouseClickGameEnded = (function (e) {
+    var mouse = Game.canvasState.getMouse(e);
+    var mx = mouse.x;
+    var my = mouse.y;
+    if (mx > 300 && mx < 691 && my > 384 && my < 441) {
+        //Clicked on play again
+        var command = {
+            type: 'JOIN_GAME',
+            name: getParameterByName('playerName')
+        };
+        Game.socket.send(JSON.stringify(command));
+        Game.canvasState.canvas.removeEventListener('mousedown', Game.onMouseClickGameEnded, true);
     }
 });
 

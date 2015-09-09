@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 public class Player {
 
+    public static final int MAX_NAME_LENGTH = 20;
     private final UUID id;
     private final String name;
     private final HeartsEndpoint endpoint;
@@ -23,7 +24,13 @@ public class Player {
 
     public Player(String name, HeartsEndpoint endpoint) {
         this.id = UUID.randomUUID();
-        this.name = name;
+        if (name.isEmpty()) {
+            this.name = "John Doe";
+        } else if (name.length() > MAX_NAME_LENGTH) {
+            this.name = name.substring(0, MAX_NAME_LENGTH);
+        } else {
+            this.name = name;
+        }
         this.endpoint = endpoint;
         endpoint.setPlayer(this);
     }

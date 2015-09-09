@@ -28,7 +28,6 @@ function CanvasState(canvas, finishedLoading) {
     var canvasState = this;
     loadImages(image_src, function (images) {
         canvasState.images = images;
-        //canvasState.draw();
         finishedLoading();
     });
 
@@ -86,14 +85,16 @@ CanvasState.prototype.draw = function (specialHand) {
     }
 
     function printScore() {
-        ctx.font = 'bold 30px Arial';
-        ctx.fillStyle = 'white';
-        ctx.textAlign = "left";
-        ctx.fillText('Score', 10, 30);
-        ctx.font = '30px Arial';
-        Game.players.forEach(function (player, i) {
-            ctx.fillText(player.name + ': ' + player.score, 10, 55 + i * 25);
-        });
+        if(Game.players) {
+            ctx.font = 'bold 30px Arial';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = "left";
+            ctx.fillText('Score', 10, 30);
+            ctx.font = '30px Arial';
+            Game.players.forEach(function (player, i) {
+                ctx.fillText(player.name + ': ' + player.score, 10, 55 + i * 25);
+            });
+        }
     }
 
     function printHandCardByCardWithSound() {
@@ -106,19 +107,21 @@ CanvasState.prototype.draw = function (specialHand) {
     }
 
     function printPlayerNames() {
-        ctx.font = 'bold 40px Arial';
-        ctx.textAlign = "center";
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 2;
+        if(Game.players) {
+            ctx.font = 'bold 40px Arial';
+            ctx.textAlign = "center";
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 2;
 
 
-        ctx.strokeText(Game.players[0].name, canvas.width / 2, 760);
-        ctx.textAlign = "left";
-        ctx.strokeText(Game.players[1].name, 10, canvas.height / 2);
-        ctx.textAlign = "center";
-        ctx.strokeText(Game.players[2].name, canvas.width / 2, 80);
-        ctx.textAlign = "right";
-        ctx.strokeText(Game.players[3].name, 1014, canvas.height / 2);
+            ctx.strokeText(Game.players[0].name, canvas.width / 2, 760);
+            ctx.textAlign = "left";
+            ctx.strokeText(Game.players[1].name, 10, canvas.height / 2);
+            ctx.textAlign = "center";
+            ctx.strokeText(Game.players[2].name, canvas.width / 2, 80);
+            ctx.textAlign = "right";
+            ctx.strokeText(Game.players[3].name, 1014, canvas.height / 2);
+        }
     }
 
     var canvas = this.canvas;
@@ -126,7 +129,7 @@ CanvasState.prototype.draw = function (specialHand) {
     this.clear();
     if (specialHand) {
         printHandCardByCardWithSound();
-    } else {
+    } else if (Game.players) {
         Game.players[0].hand.cards.forEach(function (card) {
             card.draw(ctx);
         });
@@ -139,6 +142,12 @@ CanvasState.prototype.draw = function (specialHand) {
     Game.receivedTrade.forEach(function (card) {
         card.draw(ctx);
     });
+
+    if (Game.gameOver === true) {
+        var image = Game.canvasState.images['play_again'];
+        ctx.drawImage(image, 300, canvas.height / 2, image.width/2, image.height/2);
+        Game.canvasState.canvas.addEventListener('mousedown', Game.onMouseClickGameEnded, true);
+    }
     printCurrentPlayer();
     printScore();
     printPlayerNames();
@@ -221,5 +230,6 @@ var image_src = {
     jack_of_hearts: 'images/jack_of_hearts.png',
     queen_of_hearts: 'images/queen_of_hearts.png',
     king_of_hearts: 'images/king_of_hearts.png',
-    ace_of_hearts: 'images/ace_of_hearts.png'
+    ace_of_hearts: 'images/ace_of_hearts.png',
+    play_again: 'images/play_again.png'
 };

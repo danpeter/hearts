@@ -18,8 +18,7 @@ public class GameManager {
         return gameManagerSingleton;
     }
 
-    public synchronized void joinGame(HeartsEndpoint endpoint, String name) {
-        Player player = new Player(name, endpoint);
+    public synchronized void joinGame(Player player) {
         playersWaitingForGame.add(player);
         startAGameIfEnoughPlayers();
     }
