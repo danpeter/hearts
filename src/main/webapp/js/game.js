@@ -87,7 +87,7 @@ Game.connect = (function (host) {
                     Game.currentPlayer = null;
                     Game.players = command.players;
                     Game.players[0].hand = new Hand([]);
-                    Game.gameOver = true;
+                    Game.playAgainButton = new PlayAgainButton();
                     Game.canvasState.canvas.removeEventListener('mousedown', Game.onMouseClickTrading, true);
                     Game.canvasState.canvas.removeEventListener('mousedown', Game.onMouseClickPlaying, true);
                     Game.canvasState.draw();
@@ -100,7 +100,7 @@ Game.connect = (function (host) {
             case 'PLAYER_QUIT':
                 Game.currentPlayer = null;
                 Game.players = null;
-                Game.gameOver = true;
+                Game.playAgainButton = new PlayAgainButton();
                 Game.canvasState.canvas.removeEventListener('mousedown', Game.onMouseClickTrading, true);
                 Game.canvasState.canvas.removeEventListener('mousedown', Game.onMouseClickPlaying, true);
                 Game.canvasState.draw();
@@ -159,7 +159,11 @@ Game.onMouseClickPlaying = (function (e) {
         for (var i = l - 1; i >= 0; i--) {
             var card = Game.players[0].hand.cards[i];
             if (card.contains(mx, my)) {
-                if (isTwoOfClubsIfFirstCardInFirstRound() && isFollowingSuit() && isAllowedToPlayHearts() && !isFirstTrickAndScoringCard() && !Game.waitForTrickClear) {
+                if (isTwoOfClubsIfFirstCardInFirstRound()
+                    && isFollowingSuit()
+                    && isAllowedToPlayHearts()
+                    && !isFirstTrickAndScoringCard()
+                    && !Game.waitForTrickClear) {
                     var command = {
                         type: 'PLAY_CARD',
                         card: Game.players[0].hand.cards[i],
@@ -205,7 +209,7 @@ Game.onMouseClickGameEnded = (function (e) {
     var mouse = Game.canvasState.getMouse(e);
     var mx = mouse.x;
     var my = mouse.y;
-    if (mx > 300 && mx < 691 && my > 384 && my < 441) {
+    if (Game.playAgainButton.contains(mx, my)) {
         //Clicked on play again
         var command = {
             type: 'JOIN_GAME',
@@ -213,6 +217,7 @@ Game.onMouseClickGameEnded = (function (e) {
         };
         Game.socket.send(JSON.stringify(command));
         Game.canvasState.canvas.removeEventListener('mousedown', Game.onMouseClickGameEnded, true);
+        Game.playAgainButton = null;
     }
 });
 

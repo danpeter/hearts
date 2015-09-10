@@ -32,4 +32,4 @@ Card.prototype.hasSameSuite = function (otherCard) {
 
 Card.prototype.isScoringCard = function () {
     return this.suit === "HEARTS" || (this.suit === "SPADES" && this.value === "QUEEN");
-}
+};

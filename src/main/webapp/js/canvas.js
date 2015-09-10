@@ -85,7 +85,7 @@ CanvasState.prototype.draw = function (specialHand) {
     }
 
     function printScore() {
-        if(Game.players) {
+        if (Game.players) {
             ctx.font = 'bold 30px Arial';
             ctx.fillStyle = 'white';
             ctx.textAlign = "left";
@@ -107,7 +107,7 @@ CanvasState.prototype.draw = function (specialHand) {
     }
 
     function printPlayerNames() {
-        if(Game.players) {
+        if (Game.players) {
             ctx.font = 'bold 40px Arial';
             ctx.textAlign = "center";
             ctx.strokeStyle = 'white';
@@ -143,9 +143,8 @@ CanvasState.prototype.draw = function (specialHand) {
         card.draw(ctx);
     });
 
-    if (Game.gameOver === true) {
-        var image = Game.canvasState.images['play_again'];
-        ctx.drawImage(image, 300, canvas.height / 2, image.width/2, image.height/2);
+    if (Game.playAgainButton) {
+        Game.playAgainButton.draw(ctx);
         Game.canvasState.canvas.addEventListener('mousedown', Game.onMouseClickGameEnded, true);
     }
     printCurrentPlayer();
