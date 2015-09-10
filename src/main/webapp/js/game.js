@@ -45,7 +45,6 @@ Game.connect = (function (host) {
         switch (command.type) {
             case 'NEW_HAND':
                 var newRound = function () {
-                    console.log('Game is starting! Dealing hands.');
                     Game.firstHand = true;
                     Game.player.id = command.playerId;
                     Game.players = command.players;
@@ -110,7 +109,7 @@ Game.connect = (function (host) {
                 console.log(command.message);
                 break;
             default:
-                console.log('Unknown message');
+                console.log('Unknown message:' + command.type);
         }
     };
 });
@@ -230,9 +229,10 @@ Game.sendMessage = (function () {
 });
 
 Game.drawHand = (function (command) {
+    var dealSpecial = command.type != 'NEW_HAND' || !Game.receivedTrade.length > 0;
     Game.receivedTrade = [];
     Game.players[0].hand = new Hand(command.hand);
-    Game.canvasState.draw(true);
+    Game.canvasState.draw(dealSpecial);
 });
 
 Game.receiveTrade = (function (command) {
