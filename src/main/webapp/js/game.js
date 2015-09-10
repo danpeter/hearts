@@ -43,7 +43,7 @@ Game.connect = (function (host) {
 
         var command = JSON.parse(message.data);
         switch (command.type) {
-            case 'NEW_ROUND':
+            case 'NEW_HAND':
                 var newRound = function () {
                     console.log('Game is starting! Dealing hands.');
                     Game.firstHand = true;

@@ -41,7 +41,7 @@ public class Player {
 
         players = putCurrentPlayerFirst(players);
 
-        RoundDto dto = new RoundDto(players.stream().map(PlayerDto::from).collect(Collectors.toList()),
+        HandDto dto = new HandDto(players.stream().map(PlayerDto::from).collect(Collectors.toList()),
                 PlayerDto.from(startingPlayer),
                 playerHand,
                 id);
