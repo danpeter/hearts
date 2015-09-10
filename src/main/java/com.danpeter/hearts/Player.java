@@ -86,6 +86,7 @@ public class Player {
         GameOverDto dto = new GameOverDto(PlayerDto.from(winner),
                 players.stream().map(PlayerDto::from).collect(Collectors.toList()));
         endpoint.send(dto);
+        currentHand = Optional.empty();
     }
 
     public void receiveCards(List<Card> cards) {
@@ -157,7 +158,5 @@ public class Player {
         //As the endpoint is the object root, from a garbage collection point of view, setting all player references to null
         //should remove all Game/Hand objects
         endpoint.setPlayer(null);
-
-
     }
 }
