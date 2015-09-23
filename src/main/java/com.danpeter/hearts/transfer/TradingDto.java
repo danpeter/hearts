@@ -1,6 +1,6 @@
 package com.danpeter.hearts.transfer;
 
-import com.danpeter.hearts.PlayerHand;
+import com.danpeter.hearts.game.PlayerHand;
 import com.danpeter.hearts.deck.Card;
 
 import java.util.List;

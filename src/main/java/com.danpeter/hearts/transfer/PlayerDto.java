@@ -1,6 +1,6 @@
 package com.danpeter.hearts.transfer;
 
-import com.danpeter.hearts.Player;
+import com.danpeter.hearts.game.Player;
 
 import java.util.UUID;
 

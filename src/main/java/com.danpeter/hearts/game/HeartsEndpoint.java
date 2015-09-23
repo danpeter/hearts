@@ -1,4 +1,4 @@
-package com.danpeter.hearts;
+package com.danpeter.hearts.game;
 
 import com.danpeter.hearts.deck.Card;
 import com.danpeter.hearts.transfer.GameErrorDto;
@@ -22,7 +22,7 @@ public class HeartsEndpoint {
     private static final Log log = LogFactory.getLog(HeartsEndpoint.class);
 
     private Session session;
-    private final GameManager gameManager = GameManager.get();
+    private final GameManager gameManager = GameManager.getInstance();
     private Optional<Player> player = Optional.empty();
     private final Gson gson = new Gson();
 

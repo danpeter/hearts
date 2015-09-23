@@ -1,4 +1,4 @@
-package com.danpeter.hearts;
+package com.danpeter.hearts.game;
 
 import java.util.List;
 

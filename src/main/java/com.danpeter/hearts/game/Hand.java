@@ -1,4 +1,4 @@
-package com.danpeter.hearts;
+package com.danpeter.hearts.game;
 
 import com.danpeter.hearts.deck.Card;
 import com.danpeter.hearts.deck.Deck;

@@ -1,4 +1,4 @@
-package com.danpeter.hearts;
+package com.danpeter.hearts.game;
 
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
@@ -14,7 +14,7 @@ public class GameManager {
 
     private final LinkedList<Player> playersWaitingForGame = new LinkedList<>();
 
-    public static GameManager get() {
+    public static GameManager getInstance() {
         return gameManagerSingleton;
     }
 
