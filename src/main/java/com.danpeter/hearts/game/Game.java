@@ -1,5 +1,7 @@
 package com.danpeter.hearts.game;
 
+import com.danpeter.hearts.statistics.StatisticsManager;
+
 import java.util.LinkedList;
 import java.util.function.BinaryOperator;
 
@@ -11,6 +13,7 @@ public class Game {
     private Hand hand;
     private final LinkedList<Player> players;
     private TradeDirection tradeDirection = TradeDirection.LEFT;
+    StatisticsManager statisticsManager = StatisticsManager.getInstance();
 
     public Game(LinkedList<Player> players) {
         this.players = players;
@@ -18,6 +21,7 @@ public class Game {
     }
 
     public void play() {
+        statisticsManager.startedGame();
         hand.startTrading(tradeDirection);
     }
 
@@ -31,6 +35,7 @@ public class Game {
     }
 
     private boolean gameIsOver() {
+        statisticsManager.finishedGame();
         return players.stream().filter(player -> player.getScore() >= MAX_SCORE)
                 .findAny().isPresent();
     }

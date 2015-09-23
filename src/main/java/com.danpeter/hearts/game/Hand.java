@@ -2,6 +2,7 @@ package com.danpeter.hearts.game;
 
 import com.danpeter.hearts.deck.Card;
 import com.danpeter.hearts.deck.Deck;
+import com.danpeter.hearts.statistics.StatisticsManager;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -20,6 +21,7 @@ public class Hand {
     private int tricks = 1;
     private boolean heartsBroken = false;
     private Optional<Trade> trade = Optional.empty();
+    private final StatisticsManager statisticsManager = StatisticsManager.getInstance();
 
     public Hand(Game game, LinkedList<Player> players) {
         this.game = game;
@@ -135,6 +137,7 @@ public class Hand {
     }
 
     public void quit(Player player) {
+        statisticsManager.abortedGame();
         players.stream().filter(p -> !p.equals(player)).forEach(p -> p.playerQuit(player));
     }
 }
